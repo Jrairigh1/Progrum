@@ -18,7 +18,8 @@ export function RepsPage() {
   const deleteCount = deleting ? store.clients.filter((client) => client.repId === deleting.id).length : 0;
 
   return (
-    <section className="page">
+    <section className="page reps-layout">
+      <div className="reps-main">
       <div className="page-head">
         <div>
           <h1>Sales reps</h1>
@@ -28,8 +29,6 @@ export function RepsPage() {
           Add rep
         </button>
       </div>
-      <QuickLinks onAdvance={() => setAdvance(true)} />
-      <AdvanceDialog open={advance} onClose={() => setAdvance(false)} />
       {reps.length === 0 ? (
         <div className="empty">
           <h2>No reps yet</h2>
@@ -69,6 +68,9 @@ export function RepsPage() {
           })}
         </div>
       )}
+      </div>
+      <QuickLinks onAdvance={() => setAdvance(true)} />
+      <AdvanceDialog open={advance} onClose={() => setAdvance(false)} />
       <NameDialog
         open={adding}
         title="Add rep"

@@ -318,26 +318,58 @@ main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 48
   background: var(--paper);
   font: inherit;
 }
+.reps-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 232px;
+  gap: 18px;
+  align-items: start;
+}
+.reps-layout:has(.quick-rail.is-collapsed) { grid-template-columns: minmax(0, 1fr) 48px; }
+.reps-main { min-width: 0; }
+.quick-rail { position: sticky; top: 12px; }
+.quick-toggle {
+  display: none;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--navy);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 14px 8px;
+  writing-mode: vertical-rl;
+  width: 48px;
+  min-height: 148px;
+  font-weight: 600;
+}
+.quick-rail.is-collapsed .quick-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.quick-rail.is-collapsed .quick-links { display: none; }
+.quick-backdrop { display: none; }
 .quick-links {
   background: var(--paper);
   border: 1px solid var(--line);
   border-radius: 16px;
   box-shadow: var(--shadow);
-  padding: 16px 16px 8px;
-  margin-bottom: 18px;
+  padding: 14px 12px 10px;
+  margin: 0;
 }
-.quick-links-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
-.quick-links h2 { font-family: var(--serif); color: var(--navy); margin: 0 0 8px; }
+.quick-links-head { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+.quick-links h2 { font-family: var(--serif); color: var(--navy); margin: 0; font-size: 1.2rem; }
+.quick-links .hint { font-size: 0.82rem; margin: 8px 0 0; }
+.quick-advance { width: 100%; margin-top: 10px; }
 .quick-links ul { list-style: none; padding: 0; margin: 8px 0 0; }
 .quick-links li {
   display: flex;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px;
   align-items: center;
   padding: 8px 0;
   border-top: 1px solid var(--line);
 }
-.quick-links a { color: var(--navy-mid); }
+.quick-links a { color: var(--navy-mid); white-space: nowrap; }
+.quick-links li span { min-width: 0; }
 .advance-preview {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -564,6 +596,39 @@ main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 48
   .row-progress { text-align: left; width: 100%; }
 }
 @media (max-width: 860px) {
+  .reps-layout, .reps-layout:has(.quick-rail.is-collapsed) { grid-template-columns: 1fr; }
+  .quick-rail { position: static; order: -1; }
+  .quick-toggle {
+    display: inline-flex;
+    writing-mode: horizontal-tb;
+    width: auto;
+    min-height: 0;
+    padding: 8px 14px;
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+  .quick-rail.is-collapsed .quick-links,
+  .quick-links { display: none; }
+  .quick-rail.is-drawer-open .quick-links {
+    display: block;
+    position: fixed;
+    z-index: 40;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(320px, 88vw);
+    overflow: auto;
+    border-radius: 0;
+  }
+  .quick-rail.is-drawer-open .quick-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 39;
+    border: 0;
+    padding: 0;
+    background: rgba(4, 32, 71, 0.45);
+  }
   .doc-list { display: block; }
   .top { padding: 12px; }
   main, .foot { width: min(1120px, calc(100% - 20px)); }
