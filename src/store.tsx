@@ -1,31 +1,35 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import { isM365Configured } from "./config/m365";
 import { cleanLabel, cleanName } from "./lib/backup";
-import { idbGet, idbSet, loadOrSeed } from "./lib/db";
-import { initAuth, login, logout, type SignedInUser } from "./lib/auth";
+import { idbGet } from "./lib/db";
+import {
+  explainFirestoreError,
+  listenBoards,
+  removeClient,
+  removeLink,
+  removeRep,
+  replaceBoards,
+  saveClient,
+  saveLink,
+  saveRep,
+  seedJamesIfEmpty,
+} from "./lib/firestore";
 import { friendlyNameFromUrl, parseHttpsUrl } from "./lib/links";
-import { explainGraphError, loadSharePoint, pushChanges } from "./lib/sharepoint";
-import { emptyIndex, mergeLocal, type RemoteIndex } from "./lib/syncPlan";
+import { mergeLocal } from "./lib/syncPlan";
+import { getYourName } from "./lib/yourName";
 import { isKnownPieceId } from "./config/pieces";
 import { INSURERS, STATES } from "./config/catalog";
 import type { Client, DealType, PersistedState, Rep } from "./types";
 
-export type StoreMode = "local" | "sharepoint";
-
 interface StoreValue {
   ready: boolean;
   fatal: string | null;
-  mode: StoreMode;
-  account: SignedInUser | null;
   localBoardCount: number;
   reps: Rep[];
   clients: Client[];
   toast: string | null;
   dismissToast: () => void;
   notify: (message: string) => void;
-  signIn: () => void;
-  signOut: () => void;
   importLocalBoards: () => void;
   addRep: (name: string) => { id: string } | { error: string };
   renameRep: (id: string, name: string) => string | null;
@@ -43,81 +47,55 @@ interface StoreValue {
 const StoreContext = createContext<StoreValue | null>(null);
 
 export function StoreProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<PersistedState | null>(null);
+  const [reps, setReps] = useState<Rep[]>([]);
+  const [clients, setClients] = useState<Client[]>([]);
   const [ready, setReady] = useState(false);
   const [fatal, setFatal] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
-  const [mode, setMode] = useState<StoreMode>("local");
-  const [account, setAccount] = useState<SignedInUser | null>(null);
   const [localBoardCount, setLocalBoardCount] = useState(0);
-  const stateRef = useRef<PersistedState | null>(null);
-  const modeRef = useRef<StoreMode>("local");
-  const indexRef = useRef<RemoteIndex>(emptyIndex());
-  const actorRef = useRef("");
-  const writing = useRef(0);
-  const generation = useRef(0);
-  const queue = useRef(Promise.resolve());
-  stateRef.current = state;
+  const repsRef = useRef<Rep[]>([]);
+  const clientsRef = useRef<Client[]>([]);
+  const seen = useRef({ reps: false, clients: false });
+
+  function publish(nextReps: Rep[], nextClients: Client[]) {
+    repsRef.current = nextReps;
+    clientsRef.current = nextClients;
+    setReps(nextReps);
+    setClients(nextClients);
+  }
 
   useEffect(() => {
     let cancel = false;
-    void (async () => {
-      if (!isM365Configured()) {
-        try {
-          const loaded = await loadOrSeed();
-          if (cancel) return;
-          modeRef.current = "local";
-          setMode("local");
-          setState(loaded);
-          setReady(true);
-        } catch (error: unknown) {
-          if (cancel) return;
-          const message = error instanceof Error ? error.message : "";
-          setFatal(
-            message.startsWith("Saved data")
-              ? `${message} It was left untouched. Nothing was sent to a server.`
-              : "This browser blocked IndexedDB. Progrum will not store names or links anywhere else.",
-          );
-          setReady(true);
-        }
-        return;
-      }
-      let signedIn: SignedInUser | null = null;
-      try {
-        signedIn = await initAuth();
-      } catch {
-        if (cancel) return;
-        modeRef.current = "sharepoint";
-        setMode("sharepoint");
-        setFatal("Microsoft sign-in could not be completed. Try again.");
-        setReady(true);
-        return;
-      }
-      if (cancel) return;
-      modeRef.current = "sharepoint";
-      setMode("sharepoint");
-      setAccount(signedIn);
-      if (!signedIn) {
-        setReady(true);
-        return;
-      }
-      actorRef.current = signedIn.name;
-      try {
-        const loaded = await loadSharePoint({ seed: true });
-        if (cancel) return;
-        indexRef.current = loaded.index;
-        setState(loaded.state);
-        const local = await idbGet().catch(() => null);
-        setLocalBoardCount(local?.clients.length ?? 0);
-        setReady(true);
-      } catch (error: unknown) {
-        if (cancel) return;
-        setFatal(explainGraphError(error));
-        setReady(true);
-      }
-    })();
+    const stop = listenBoards(
+      (next) => {
+        repsRef.current = next;
+        setReps(next);
+        seen.current.reps = true;
+        if (seen.current.clients) setReady(true);
+      },
+      (next) => {
+        clientsRef.current = next;
+        setClients(next);
+        seen.current.clients = true;
+        if (seen.current.reps) setReady(true);
+      },
+      (error) => {
+        if (!cancel) setFatal(explainFirestoreError(error));
+      },
+    );
+    void seedJamesIfEmpty().catch((error: unknown) => {
+      if (!cancel) setFatal(explainFirestoreError(error));
+    });
+    void idbGet()
+      .then((local) => {
+        if (!cancel) setLocalBoardCount(local?.clients.length ?? 0);
+      })
+      .catch(() => {
+        /* a missing local copy just means there is nothing to import */
+      });
     return () => {
       cancel = true;
+      stop();
     };
   }, []);
 
@@ -127,240 +105,160 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     return () => window.clearTimeout(id);
   }, [toast]);
 
-  useEffect(() => {
-    if (mode !== "sharepoint" || !account || !ready) return;
-    let stop = false;
-    const refresh = () => {
-      if (stop || writing.current > 0) return;
-      const seen = generation.current;
-      void loadSharePoint({ seed: false })
-        .then((loaded) => {
-          if (stop || writing.current > 0 || generation.current !== seen) return;
-          indexRef.current = loaded.index;
-          stateRef.current = loaded.state;
-          setState(loaded.state);
-        })
-        .catch(() => {
-          /* keep the last good copy; the next poll can try again */
-        });
-    };
-    const onVisible = () => {
-      if (document.visibilityState === "visible") refresh();
-    };
-    const timer = window.setInterval(refresh, 30000);
-    window.addEventListener("focus", onVisible);
-    document.addEventListener("visibilitychange", onVisible);
-    return () => {
-      stop = true;
-      window.clearInterval(timer);
-      window.removeEventListener("focus", onVisible);
-      document.removeEventListener("visibilitychange", onVisible);
-    };
-  }, [account, mode, ready]);
-
   const api = useMemo<StoreValue>(() => {
     const notify = (message: string) => setToast(message);
-    const commit = (recipe: (prev: PersistedState) => PersistedState) => {
-      const prev = stateRef.current;
-      if (!prev) return;
-      const next = recipe(prev);
-      generation.current += 1;
-      const gen = generation.current;
-      writing.current += 1;
-      stateRef.current = next;
-      setState(next);
-      queue.current = queue.current
-        .then(async () => {
-          if (modeRef.current === "local") {
-            await idbSet(next);
-            return;
-          }
-          indexRef.current = await pushChanges(indexRef.current, prev, next, actorRef.current);
-        })
-        .catch(async (error: unknown) => {
-          notify(modeRef.current === "local" ? "Could not save on this browser. Nothing was sent to a server." : explainGraphError(error));
-          if (modeRef.current !== "sharepoint" || generation.current !== gen) return;
-          try {
-            const loaded = await loadSharePoint({ seed: false });
-            if (generation.current !== gen) return;
-            indexRef.current = loaded.index;
-            stateRef.current = loaded.state;
-            setState(loaded.state);
-          } catch {
-            /* leave the screen as the user last edited it */
-          }
-        })
-        .finally(() => {
-          writing.current -= 1;
-        });
-    };
+    const fail = (error: unknown) => notify(explainFirestoreError(error));
+    const snapshot = (): PersistedState => ({ version: 1, reps: repsRef.current, clients: clientsRef.current });
 
     return {
       ready,
       fatal,
-      mode,
-      account,
       localBoardCount,
-      reps: state?.reps ?? [],
-      clients: state?.clients ?? [],
+      reps,
+      clients,
       toast,
       dismissToast: () => setToast(null),
       notify,
-      signIn: () => {
-        void login().catch(() => setFatal("Sign-in could not start. Check the Microsoft 365 settings and try again."));
-      },
-      signOut: () => {
-        void logout().catch(() => setFatal("Sign-out could not be completed."));
-      },
       importLocalBoards: () => {
         void idbGet()
-          .then((local) => {
-            const prev = stateRef.current;
-            if (!local || !prev || (local.reps.length === 0 && local.clients.length === 0)) {
+          .then(async (local) => {
+            if (!local || (local.reps.length === 0 && local.clients.length === 0)) {
               notify("Nothing is saved on this browser.");
               return;
             }
-            const merged = mergeLocal(prev, local, actorRef.current);
+            const merged = mergeLocal(snapshot(), local, getYourName() || "Imported from a browser");
             if (merged.addedReps === 0 && merged.addedClients === 0 && merged.addedLinks === 0) {
-              notify("Those boards are already on the shared lists.");
+              notify("Those boards are already on the shared list.");
               return;
             }
-            commit(() => merged.state);
-            notify(
-              `Added ${merged.addedReps} reps, ${merged.addedClients} clients, and ${merged.addedLinks} links to SharePoint.`,
-            );
+            await replaceBoards(snapshot(), merged.state);
+            notify(`Added ${merged.addedReps} reps, ${merged.addedClients} clients, and ${merged.addedLinks} links.`);
           })
-          .catch(() => notify("The boards on this browser could not be read."));
+          .catch((error: unknown) => fail(error));
       },
       addRep: (name) => {
         const clean = cleanName(name);
         if (!clean) return { error: "Enter a rep name." };
-        const id = crypto.randomUUID();
-        commit((prev) => ({
-          ...prev,
-          reps: [...prev.reps, { id, name: clean, createdAt: new Date().toISOString() }],
-        }));
-        return { id };
+        const rep: Rep = { id: crypto.randomUUID(), name: clean, createdAt: new Date().toISOString() };
+        publish([...repsRef.current, rep], clientsRef.current);
+        void saveRep(rep).catch(fail);
+        return { id: rep.id };
       },
       renameRep: (id, name) => {
         const clean = cleanName(name);
         if (!clean) return "Enter a rep name.";
-        commit((prev) => ({ ...prev, reps: prev.reps.map((rep) => (rep.id === id ? { ...rep, name: clean } : rep)) }));
+        const current = repsRef.current.find((rep) => rep.id === id);
+        if (!current) return "That rep is not on the shared boards.";
+        const next = { ...current, name: clean };
+        publish(repsRef.current.map((rep) => (rep.id === id ? next : rep)), clientsRef.current);
+        void saveRep(next).catch(fail);
         return null;
       },
       deleteRep: (id) => {
-        commit((prev) => ({
-          ...prev,
-          reps: prev.reps.filter((rep) => rep.id !== id),
-          clients: prev.clients.filter((client) => client.repId !== id),
-        }));
+        const clientIds = clientsRef.current.filter((client) => client.repId === id).map((client) => client.id);
+        publish(
+          repsRef.current.filter((rep) => rep.id !== id),
+          clientsRef.current.filter((client) => client.repId !== id),
+        );
+        void removeRep(id, clientIds).catch(fail);
       },
       addClient: (input) => {
         const clean = cleanName(input.name);
         if (!clean) return { error: "Enter a client name." };
-        if (!stateRef.current?.reps.some((rep) => rep.id === input.repId)) return { error: "Choose a rep first." };
+        if (!repsRef.current.some((rep) => rep.id === input.repId)) return { error: "Choose a rep first." };
         const now = new Date().toISOString();
-        const id = crypto.randomUUID();
-        commit((prev) => ({
-          ...prev,
-          clients: [
-            ...prev.clients,
-            {
-              id,
-              repId: input.repId,
-              name: clean,
-              state: STATES[input.state] ? input.state : "",
-              insurer: INSURERS[input.insurer] ? input.insurer : "",
-              dealType: input.dealType === "spia" ? "spia" : "structured",
-              links: {},
-              createdAt: now,
-              updatedAt: now,
-            },
-          ],
-        }));
-        return { id };
+        const client: Client = {
+          id: crypto.randomUUID(),
+          repId: input.repId,
+          name: clean,
+          state: STATES[input.state] ? input.state : "",
+          insurer: INSURERS[input.insurer] ? input.insurer : "",
+          dealType: input.dealType === "spia" ? "spia" : "structured",
+          links: {},
+          createdAt: now,
+          updatedAt: now,
+        };
+        publish(repsRef.current, [...clientsRef.current, client]);
+        void saveClient(client).catch(fail);
+        return { id: client.id };
       },
       renameClient: (id, name) => {
         const clean = cleanName(name);
         if (!clean) return "Enter a client name.";
-        commit((prev) => ({
-          ...prev,
-          clients: prev.clients.map((client) =>
-            client.id === id ? { ...client, name: clean, updatedAt: new Date().toISOString() } : client,
-          ),
-        }));
+        const current = clientsRef.current.find((client) => client.id === id);
+        if (!current) return "That client is not on the shared boards.";
+        const next = { ...current, name: clean, updatedAt: new Date().toISOString() };
+        publish(repsRef.current, clientsRef.current.map((client) => (client.id === id ? next : client)));
+        void saveClient(next).catch(fail);
         return null;
       },
       updateClient: (id, patch) => {
-        commit((prev) => ({
-          ...prev,
-          clients: prev.clients.map((client) => {
-            if (client.id !== id) return client;
-            const nextState = patch.state === undefined ? client.state : STATES[patch.state] ? patch.state : "";
-            const insurer = patch.insurer === undefined ? client.insurer : INSURERS[patch.insurer] ? patch.insurer : "";
-            const dealType = patch.dealType === "spia" ? "spia" : patch.dealType === "structured" ? "structured" : client.dealType;
-            return { ...client, state: nextState, insurer, dealType, updatedAt: new Date().toISOString() };
-          }),
-        }));
+        const current = clientsRef.current.find((client) => client.id === id);
+        if (!current) return;
+        const next: Client = {
+          ...current,
+          state: patch.state === undefined ? current.state : STATES[patch.state] ? patch.state : "",
+          insurer: patch.insurer === undefined ? current.insurer : INSURERS[patch.insurer] ? patch.insurer : "",
+          dealType: patch.dealType === "spia" || patch.dealType === "structured" ? patch.dealType : current.dealType,
+          updatedAt: new Date().toISOString(),
+        };
+        publish(repsRef.current, clientsRef.current.map((client) => (client.id === id ? next : client)));
+        void saveClient(next).catch(fail);
       },
       moveClient: (id, repId) => {
-        if (!stateRef.current?.reps.some((rep) => rep.id === repId)) return;
-        commit((prev) => ({
-          ...prev,
-          clients: prev.clients.map((client) =>
-            client.id === id ? { ...client, repId, updatedAt: new Date().toISOString() } : client,
-          ),
-        }));
+        if (!repsRef.current.some((rep) => rep.id === repId)) return;
+        const current = clientsRef.current.find((client) => client.id === id);
+        if (!current) return;
+        const next = { ...current, repId, updatedAt: new Date().toISOString() };
+        publish(repsRef.current, clientsRef.current.map((client) => (client.id === id ? next : client)));
+        void saveClient(next).catch(fail);
       },
       deleteClient: (id) => {
-        commit((prev) => ({ ...prev, clients: prev.clients.filter((client) => client.id !== id) }));
+        publish(repsRef.current, clientsRef.current.filter((client) => client.id !== id));
+        void removeClient(id).catch(fail);
       },
       setLink: (clientId, pieceId, url, customLabel) => {
         const parsed = parseHttpsUrl(url);
         if (!parsed.ok) return parsed.message;
         if (!isKnownPieceId(pieceId)) return "That document is not on this board.";
-        const custom = cleanLabel(customLabel);
+        const current = clientsRef.current.find((client) => client.id === clientId);
+        if (!current) return "That client is not on the shared boards.";
         const now = new Date().toISOString();
-        commit((prev) => ({
-          ...prev,
-          clients: prev.clients.map((client) => {
-            if (client.id !== clientId) return client;
-            const previous = client.links[pieceId];
-            return {
-              ...client,
-              updatedAt: now,
-              links: {
-                ...client.links,
-                [pieceId]: {
-                  url: parsed.url,
-                  label: custom || friendlyNameFromUrl(parsed.url),
-                  labelIsCustom: Boolean(custom),
-                  addedAt: previous && previous.url === parsed.url ? previous.addedAt : now,
-                  updatedAt: now,
-                  updatedBy: actorRef.current || undefined,
-                },
-              },
-            };
-          }),
-        }));
+        const custom = cleanLabel(customLabel);
+        const previous = current.links[pieceId];
+        const yourName = getYourName();
+        const link = {
+          url: parsed.url,
+          label: custom || friendlyNameFromUrl(parsed.url),
+          labelIsCustom: Boolean(custom),
+          addedAt: previous && previous.url === parsed.url ? previous.addedAt : now,
+          updatedAt: now,
+          updatedBy: yourName || undefined,
+        };
+        const next = { ...current, updatedAt: now, links: { ...current.links, [pieceId]: link } };
+        publish(repsRef.current, clientsRef.current.map((client) => (client.id === clientId ? next : client)));
+        void saveLink(clientId, pieceId, link, now).catch(fail);
         return null;
       },
       clearLink: (clientId, pieceId) => {
-        commit((prev) => ({
-          ...prev,
-          clients: prev.clients.map((client) => {
-            if (client.id !== clientId || !client.links[pieceId]) return client;
-            const links = { ...client.links };
-            delete links[pieceId];
-            return { ...client, links, updatedAt: new Date().toISOString() };
-          }),
-        }));
+        const current = clientsRef.current.find((client) => client.id === clientId);
+        if (!current?.links[pieceId]) return;
+        const links = { ...current.links };
+        delete links[pieceId];
+        const now = new Date().toISOString();
+        publish(
+          repsRef.current,
+          clientsRef.current.map((client) => (client.id === clientId ? { ...client, links, updatedAt: now } : client)),
+        );
+        void removeLink(clientId, pieceId, now).catch(fail);
       },
       replaceAll: (next) => {
-        commit(() => next);
+        const previous = snapshot();
+        publish(next.reps, next.clients);
+        void replaceBoards(previous, next).catch(fail);
       },
     };
-  }, [account, fatal, localBoardCount, mode, ready, state, toast]);
+  }, [clients, fatal, localBoardCount, ready, reps, toast]);
 
   return <StoreContext.Provider value={api}>{children}</StoreContext.Provider>;
 }

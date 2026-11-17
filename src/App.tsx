@@ -4,7 +4,6 @@ import { ClientsPage } from "./components/ClientsPage";
 import { RepsPage } from "./components/RepsPage";
 import { Shell } from "./components/Shell";
 import { parseHash, type Route } from "./lib/routing";
-import { SignIn } from "./components/SignIn";
 import { useStore } from "./store";
 
 function useRoute(): Route {
@@ -34,7 +33,7 @@ export function App() {
     document.title = title;
   }, [route, store.clients, store.reps]);
 
-  if (!store.ready) {
+  if (!store.ready && !store.fatal) {
     return (
       <div className="splash">
         <p>Progrum</p>
@@ -42,26 +41,18 @@ export function App() {
     );
   }
 
-  if (store.mode === "sharepoint" && !store.account) {
-    return <SignIn />;
-  }
-
-  if (store.fatal && store.reps.length === 0) {
+  if (store.fatal && store.reps.length === 0 && !store.ready) {
     return (
       <div className="splash">
         <h1>Progrum</h1>
         <p>{store.fatal}</p>
-        {store.account && (
-          <button type="button" className="btn" onClick={() => store.signOut()}>
-            Sign out
-          </button>
-        )}
       </div>
     );
   }
 
   return (
     <Shell>
+      {store.fatal && <p className="config-banner">{store.fatal}</p>}
       {route.name === "reps" && <RepsPage />}
       {route.name === "rep" && <ClientsPage repId={route.repId} />}
       {route.name === "client" && <BoardPage clientId={route.clientId} />}

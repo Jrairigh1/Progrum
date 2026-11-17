@@ -20,11 +20,7 @@ export function RepsPage() {
       <div className="page-head">
         <div>
           <h1>Sales reps</h1>
-          <p>
-            {store.mode === "sharepoint"
-              ? "These boards are shared with coworkers who sign in."
-              : "Open a rep to see that book of clients. The first visit on this browser starts with James."}
-          </p>
+          <p>These boards are shared live. Anyone with this link can view and edit them. James is here when the list is new.</p>
         </div>
         <button type="button" className="btn" onClick={() => setAdding(true)}>
           Add rep
@@ -32,8 +28,8 @@ export function RepsPage() {
       </div>
       {reps.length === 0 ? (
         <div className="empty">
-          <h2>No reps on this browser</h2>
-          <p>Add a rep to start a new book. Nothing is stored outside this browser.</p>
+          <h2>No reps yet</h2>
+          <p>Add a rep to start a book. The new rep shows up for everyone with this link.</p>
         </div>
       ) : (
         <div className="card-grid">
@@ -94,8 +90,8 @@ export function RepsPage() {
         title={`Delete ${deleting?.name ?? "rep"}?`}
         body={
           deleteCount
-            ? `This removes the rep and ${deleteCount} client board${deleteCount === 1 ? "" : "s"} from ${store.mode === "sharepoint" ? "the shared boards" : "this browser"}. Files on the shared drive are not touched.`
-            : `This removes the rep from ${store.mode === "sharepoint" ? "the shared boards" : "this browser"}.`
+            ? `This removes the rep and ${deleteCount} client board${deleteCount === 1 ? "" : "s"} for everyone. Files on the shared drive are not touched.`
+            : "This removes the rep for everyone. Files on the shared drive are not touched."
         }
         confirmLabel="Delete rep"
         danger
@@ -103,7 +99,7 @@ export function RepsPage() {
         onConfirm={() => {
           if (!deleting) return;
           store.deleteRep(deleting.id);
-          store.notify(`${deleting.name} was deleted from this browser.`);
+          store.notify(`${deleting.name} was removed from the shared boards.`);
           setDeleteId(null);
         }}
       />

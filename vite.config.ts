@@ -7,12 +7,11 @@ const csp = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data:",
   "font-src 'self'",
-  "connect-src 'self' https://login.microsoftonline.com https://graph.microsoft.com",
+  "connect-src 'self' https://firestore.googleapis.com wss://firestore.googleapis.com https://firebaseinstallations.googleapis.com",
   "object-src 'none'",
   "base-uri 'self'",
-  "form-action 'self' https://login.microsoftonline.com",
-  "frame-src https://login.microsoftonline.com",
-  "frame-ancestors 'none'",
+  "form-action 'self'",
+  "frame-src 'none'",
   "worker-src 'none'",
 ].join("; ");
 
