@@ -43,6 +43,47 @@ npm run build
 npm run preview
 ```
 
+## Microsoft 365 sharing
+
+Company sign-in is off until `src/config/m365.ts` has CBC’s real client ID, tenant ID, and SharePoint site URL. Until then, boards stay in this browser. The README section below is the admin checklist. After those values are filled in and the site is rebuilt, people sign in with a CBC work account and the boards are stored in three SharePoint lists (`ProgrumReps`, `ProgrumClients`, `ProgrumLinks`). The app creates those lists the first time someone signs in, if they are missing. Coworkers see updates when they return to the tab and about every 30 seconds. Each saved link shows who changed it and when.
+
+A signed-in person can choose **Import this browser** to copy boards that were saved on that browser into SharePoint. Export still downloads a JSON backup. Import of that file replaces the boards currently on screen.
+
+### Checklist for the Microsoft 365 admin
+
+1. Create a SharePoint site for these boards, or pick an existing CBC site. People who should use Progrum need Edit access on that site. Example: `https://<tenant>.sharepoint.com/sites/Progrum`.
+2. In the Microsoft Entra admin center, open **Identity → Applications → App registrations → New registration**.
+   - Name: `Progrum`
+   - Supported account types: **Accounts in this organizational directory only** (CBC’s tenant, not personal Microsoft accounts)
+   - Redirect URI: platform **Single-page application (SPA)**, URL `https://jrairigh1.github.io/Progrum/`
+3. After it is created, copy the **Application (client) ID** and the **Directory (tenant) ID**.
+4. Open **API permissions → Add a permission → Microsoft Graph → Delegated permissions**.
+   - Add **User.Read**
+   - Add **Sites.Selected** (preferred). This lets Progrum touch only the site you grant in the next step, which matters because the client ID will be in a public web app.
+   - Alternative: **Sites.ReadWrite.All** instead of Sites.Selected. That is one consent click and needs no extra site grant, but the signed-in app can then read and write every SharePoint site that person can open, not only the Progrum site. If you choose this, also change `graphScopes` in `src/config/m365.ts` from `Sites.Selected` to `Sites.ReadWrite.All`.
+5. Click **Grant admin consent**.
+6. If you used Sites.Selected, grant this app write on the one site. As a SharePoint admin, in Graph Explorer (`https://developer.microsoft.com/graph/graph-explorer`) signed in with an account that can manage site permissions:
+   - `GET https://graph.microsoft.com/v1.0/sites/<hostname>:/sites/<site-path>` and copy the site `id`
+   - `POST https://graph.microsoft.com/v1.0/sites/<site-id>/permissions` with body:
+
+```json
+{
+  "roles": ["write"],
+  "grantedToIdentities": [
+    {
+      "application": {
+        "id": "<application-client-id>",
+        "displayName": "Progrum"
+      }
+    }
+  ]
+}
+```
+
+7. Send these three values back so they can be put in `src/config/m365.ts`: the application (client) ID, the directory (tenant) ID, and the full SharePoint site URL.
+
+The lists do not need to be created by hand. The first signed-in visit creates them.
+
 ## GitHub Pages
 
 [`.github/workflows/pages.yml`](.github/workflows/pages.yml) builds the site and deploys `dist` to GitHub Pages when `main` is pushed. Pull requests only build.

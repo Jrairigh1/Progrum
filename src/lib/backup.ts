@@ -141,11 +141,14 @@ function sanitizeLinks(raw: unknown): { links: Record<string, LinkRecord>; skipp
       continue;
     }
     const custom = value.labelIsCustom === true && typeof value.label === "string" ? cleanLabel(value.label) : "";
+    const addedAt = typeof value.addedAt === "string" ? value.addedAt : new Date().toISOString();
     links[pieceId] = {
       url: parsed.url,
       label: custom || friendlyNameFromUrl(parsed.url),
       labelIsCustom: Boolean(custom),
-      addedAt: typeof value.addedAt === "string" ? value.addedAt : new Date().toISOString(),
+      addedAt,
+      updatedAt: typeof value.updatedAt === "string" ? value.updatedAt : addedAt,
+      updatedBy: typeof value.updatedBy === "string" && value.updatedBy.trim() ? value.updatedBy.trim().slice(0, 200) : undefined,
     };
   }
   return { links, skipped };

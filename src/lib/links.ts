@@ -75,6 +75,11 @@ export function formatAdded(iso: string): string {
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
+export function linkStamp(link: { addedAt: string; updatedAt?: string; updatedBy?: string }): string {
+  const when = formatAdded(link.updatedAt || link.addedAt);
+  return link.updatedBy ? `${when} · ${link.updatedBy}` : when;
+}
+
 export function readDroppedText(data: DataTransfer): { kind: "file" } | { kind: "empty" } | { kind: "text"; value: string } {
   if (data.files && data.files.length > 0) return { kind: "file" };
   const uri = data.getData("text/uri-list");

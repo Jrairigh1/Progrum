@@ -4,6 +4,7 @@ import { ClientsPage } from "./components/ClientsPage";
 import { RepsPage } from "./components/RepsPage";
 import { Shell } from "./components/Shell";
 import { parseHash, type Route } from "./lib/routing";
+import { SignIn } from "./components/SignIn";
 import { useStore } from "./store";
 
 function useRoute(): Route {
@@ -41,11 +42,20 @@ export function App() {
     );
   }
 
-  if (store.fatal) {
+  if (store.mode === "sharepoint" && !store.account) {
+    return <SignIn />;
+  }
+
+  if (store.fatal && store.reps.length === 0) {
     return (
       <div className="splash">
         <h1>Progrum</h1>
         <p>{store.fatal}</p>
+        {store.account && (
+          <button type="button" className="btn" onClick={() => store.signOut()}>
+            Sign out
+          </button>
+        )}
       </div>
     );
   }

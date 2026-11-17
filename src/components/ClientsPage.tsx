@@ -123,7 +123,11 @@ export function ClientsPage({ repId }: { repId: string }) {
       <ConfirmDialog
         open={Boolean(deleting)}
         title={`Delete ${deleting?.name ?? "client"}?`}
-        body="The saved links for this client will be removed from this browser. Files on the shared drive are not touched."
+        body={
+          store.mode === "sharepoint"
+            ? "This client and their links will be removed from the shared boards. Files on the shared drive are not touched."
+            : "The saved links for this client will be removed from this browser. Files on the shared drive are not touched."
+        }
         confirmLabel="Delete client"
         danger
         onClose={() => setDeleteId(null)}

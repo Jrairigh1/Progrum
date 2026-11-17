@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { DragEvent } from "react";
-import { dragMightBeLink, formatAdded, parseHttpsUrl, readDroppedText } from "../lib/links";
+import { dragMightBeLink, linkStamp, parseHttpsUrl, readDroppedText } from "../lib/links";
 import { BOARD_H, BOARD_W, CELL, COLS, STROKE_PAD, cellTabs, piecePath, rowTabs } from "../puzzle/geometry";
 import { SceneArt, SceneDefs } from "../puzzle/Scene";
 import type { LinkRecord, PieceDef } from "../types";
@@ -226,7 +226,7 @@ function PieceFace({
   }
 
   const label = filled
-    ? `${piece.label}, link saved as ${link?.label}, added ${link ? formatAdded(link.addedAt) : ""}. Edit link.`
+    ? `${piece.label}, link saved as ${link?.label}, ${link ? linkStamp(link) : ""}. Edit link.`
     : `${piece.label}. Empty. Paste an https link.`;
 
   return (
@@ -253,7 +253,7 @@ function PieceFace({
         {filled && link ? (
           <>
             <span className="cell-file">{link.label}</span>
-            <span className="cell-date">{formatAdded(link.addedAt)}</span>
+            <span className="cell-date">{linkStamp(link)}</span>
           </>
         ) : (
           <span className="cell-cue">Paste link</span>

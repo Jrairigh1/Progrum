@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { insurerOptions, stateOptions } from "../config/catalog";
 import { corePieceCount } from "../config/pieces";
 import { progressFor } from "../lib/clients";
+import { linkStamp } from "../lib/links";
 import { repHref } from "../lib/routing";
 import { useStore } from "../store";
 import { ConfirmDialog, LinkDialog, MoveDialog, NameDialog } from "./dialogs";
@@ -205,7 +206,7 @@ export function BoardPage({ clientId }: { clientId: string }) {
                 <li key={piece.id}>
                   <div>
                     <strong>{piece.label}</strong>
-                    <span>{link ? link.label : "No link yet"}</span>
+                    <span>{link ? `${link.label} · ${linkStamp(link)}` : "No link yet"}</span>
                   </div>
                   <div className="button-row">
                     <button type="button" className="btn ghost" onClick={() => setEditing(piece)}>
@@ -280,7 +281,11 @@ export function BoardPage({ clientId }: { clientId: string }) {
       <ConfirmDialog
         open={deleting}
         title={`Delete ${client.name}?`}
-        body="The saved links for this client will be removed from this browser. Files on the shared drive are not touched."
+        body={
+          store.mode === "sharepoint"
+            ? "This client and their links will be removed from the shared boards. Files on the shared drive are not touched."
+            : "The saved links for this client will be removed from this browser. Files on the shared drive are not touched."
+        }
         confirmLabel="Delete client"
         danger
         onClose={() => setDeleting(false)}
