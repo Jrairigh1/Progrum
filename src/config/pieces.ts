@@ -7,6 +7,7 @@
 import {
   AFFIDAVIT_FORMS,
   AUTHORIZATION_FORM,
+  FASANO_FORM,
   INSURERS,
   STATES,
   type InsurerRule,
@@ -54,6 +55,7 @@ export interface PieceProfile {
   state: string;
   insurer: string;
   dealType: DealType;
+  lifeContingent?: boolean;
 }
 
 interface PieceContext extends PieceProfile {
@@ -149,7 +151,43 @@ export const EXTRA_PIECE_RULES: ExtraRule[] = [
     when: (ctx) => ctx.insurer === "MM",
     badge: () => "Insurer required",
   },
+  {
+    id: "life-affidavit",
+    label: "Life Affidavit",
+    short: "Life Affidavit",
+    hint: "Life affidavit required when the file is life contingent.",
+    when: (ctx) => ctx.lifeContingent === true,
+    badge: () => "Life contingent",
+  },
+  {
+    id: "two-person-notifier",
+    label: "2 Person Notifier",
+    short: "2 Person Notifier",
+    hint: "Two-person notifier required when the file is life contingent.",
+    when: (ctx) => ctx.lifeContingent === true,
+    badge: () => "Life contingent",
+  },
+  {
+    id: "fasano",
+    label: "Fasano",
+    short: "Fasano",
+    hint: "Fasano document required when the file is life contingent.",
+    when: (ctx) => ctx.lifeContingent === true,
+    badge: () => "Life contingent",
+    formUrl: () => FASANO_FORM,
+    formLabel: "Open blank Fasano form",
+  },
+  {
+    id: "docucert-fasano",
+    label: "DocuCert for Fasano",
+    short: "DocuCert for Fasano",
+    hint: "DocuCert certificate for the Fasano document, required when the file is life contingent.",
+    when: (ctx) => ctx.lifeContingent === true,
+    badge: () => "Life contingent",
+  },
 ];
+
+export const LIFE_PIECE_IDS = ["life-affidavit", "two-person-notifier", "fasano", "docucert-fasano"] as const;
 
 const KNOWN_IDS = new Set<string>([
   ...CORE_PIECES.map((piece) => piece.id),

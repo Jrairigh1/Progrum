@@ -939,6 +939,9 @@ export function stateFormsFor(code: string): StateForm[] {
 /** Blank authorization-to-release form. */
 export const AUTHORIZATION_FORM = "https://cbcsettlementfundings-my.sharepoint.com/:w:/g/personal/jrairigh_cbcsettlementfunding_com/EcfbEWrE5uFNk7rQ_vbiyuEBPB2Tx14mp6nGhSZMUMKgjw?e=dZl12V";
 
+/** Blank Fasano template from the CBCisstant sidebar. Not fetched. */
+export const FASANO_FORM = "https://cbcsettlementfundings-my.sharepoint.com/:b:/g/personal/jrairigh_cbcsettlementfunding_com/EceYDgEAuFFAsfhP8Bon9hABgCG3KMfmjaqWk-kXsgCiBQ?e=aKI9sk";
+
 /** Berkshire may appear at the hearing in these states. */
 export const BIFCO_STATES = ["CA","AZ","FL","MS","TX","IN","IL","PA","NY"];
 

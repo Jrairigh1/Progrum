@@ -34,9 +34,16 @@ interface StoreValue {
   addRep: (name: string) => { id: string } | { error: string };
   renameRep: (id: string, name: string) => string | null;
   deleteRep: (id: string) => void;
-  addClient: (input: { repId: string; name: string; state: string; insurer: string; dealType: DealType }) => { id: string } | { error: string };
+  addClient: (input: {
+    repId: string;
+    name: string;
+    state: string;
+    insurer: string;
+    dealType: DealType;
+    lifeContingent?: boolean;
+  }) => { id: string } | { error: string };
   renameClient: (id: string, name: string) => string | null;
-  updateClient: (id: string, patch: Partial<Pick<Client, "state" | "insurer" | "dealType">>) => void;
+  updateClient: (id: string, patch: Partial<Pick<Client, "state" | "insurer" | "dealType" | "lifeContingent">>) => void;
   moveClient: (id: string, repId: string) => void;
   deleteClient: (id: string) => void;
   setLink: (clientId: string, pieceId: string, url: string, customLabel: string) => string | null;
@@ -174,6 +181,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           state: STATES[input.state] ? input.state : "",
           insurer: INSURERS[input.insurer] ? input.insurer : "",
           dealType: input.dealType === "spia" ? "spia" : "structured",
+          lifeContingent: input.lifeContingent === true,
           links: {},
           createdAt: now,
           updatedAt: now,
@@ -200,6 +208,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           state: patch.state === undefined ? current.state : STATES[patch.state] ? patch.state : "",
           insurer: patch.insurer === undefined ? current.insurer : INSURERS[patch.insurer] ? patch.insurer : "",
           dealType: patch.dealType === "spia" || patch.dealType === "structured" ? patch.dealType : current.dealType,
+          lifeContingent: typeof patch.lifeContingent === "boolean" ? patch.lifeContingent : current.lifeContingent === true,
           updatedAt: new Date().toISOString(),
         };
         publish(repsRef.current, clientsRef.current.map((client) => (client.id === id ? next : client)));

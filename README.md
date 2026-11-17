@@ -22,9 +22,9 @@ A new shared list starts with one rep, James. Deleting that rep stays deleted.
 ## Using the boards
 
 1. Open a rep, then add a client.
-2. Set the state, the insurance company, and whether the file is a structured settlement or a SPIA. Guidance on the board updates, and extra pieces appear when that state or insurer requires another document.
+2. Set the state, the insurance company, and whether the file is a structured settlement or a SPIA. Guidance on the board updates, and extra pieces appear when that state or insurer requires another document. Check **Life contingent** on create, or later on the board, to also require Life Affidavit, 2 Person Notifier, Fasano, and DocuCert for Fasano. Unchecking hides those pieces and keeps any links already saved.
 3. Click a grey piece and paste an https link, or drag a link onto the piece. An optional display name overrides the name taken from the address. The piece shows that name, the date it was added, and an Open button.
-4. The status line reads “X of N complete” and lists every missing piece. N is 11 unless extra documents apply.
+4. The status line reads “X of N complete” and lists every missing piece. N is 11 unless extra documents apply, including the four life-contingent pieces when that option is on. **Copy all links** includes those pieces in the same way.
 5. Search in the header finds a client across every rep. Type a name in **Your name** if you want edits stamped with it.
 6. **Copy all links** builds an email-ready list. Turn on **Still needed** to append missing pieces, and **State forms** to include that state’s blank templates.
 

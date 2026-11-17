@@ -56,7 +56,10 @@ export function ClientsPage({ repId }: { repId: string }) {
               <article key={client.id} className="row-card">
                 <a className="row-main" href={clientHref(client.id)}>
                   <div>
-                    <h2>{client.name}</h2>
+                    <h2>
+                      {client.name}
+                      {client.lifeContingent && <span className="life-badge">Life contingent</span>}
+                    </h2>
                     <p className="quiet">
                       {client.state ? stateName(client.state) : "No state"}
                       {" · "}

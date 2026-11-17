@@ -139,12 +139,13 @@ export function ClientDialog({
 }: {
   open: boolean;
   onClose: () => void;
-  onCreate: (input: { name: string; state: string; insurer: string; dealType: DealType }) => string | null;
+  onCreate: (input: { name: string; state: string; insurer: string; dealType: DealType; lifeContingent: boolean }) => string | null;
 }) {
   const [name, setName] = useState("");
   const [state, setState] = useState("");
   const [insurer, setInsurer] = useState("");
   const [dealType, setDealType] = useState<DealType>("structured");
+  const [lifeContingent, setLifeContingent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const nameId = useId();
   useEffect(() => {
@@ -153,13 +154,14 @@ export function ClientDialog({
       setState("");
       setInsurer("");
       setDealType("structured");
+      setLifeContingent(false);
       setError(null);
     }
   }, [open]);
 
   function submit(event: FormEvent) {
     event.preventDefault();
-    const result = onCreate({ name, state, insurer, dealType });
+    const result = onCreate({ name, state, insurer, dealType, lifeContingent });
     if (result) setError(result);
     else onClose();
   }
@@ -203,6 +205,11 @@ export function ClientDialog({
             SPIA
           </label>
         </fieldset>
+        <label className="checkline">
+          <input type="checkbox" checked={lifeContingent} onChange={(event) => setLifeContingent(event.target.checked)} />
+          Life contingent
+        </label>
+        <p className="hint">Adds Life Affidavit, 2 Person Notifier, Fasano, and DocuCert for Fasano.</p>
         {error && <p className="form-error">{error}</p>}
         <div className="modal-actions">
           <button type="button" className="btn ghost" onClick={onClose}>
