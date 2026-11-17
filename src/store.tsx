@@ -41,9 +41,10 @@ interface StoreValue {
     insurer: string;
     dealType: DealType;
     lifeContingent?: boolean;
+    ipa?: boolean;
   }) => { id: string } | { error: string };
   renameClient: (id: string, name: string) => string | null;
-  updateClient: (id: string, patch: Partial<Pick<Client, "state" | "insurer" | "dealType" | "lifeContingent">>) => void;
+  updateClient: (id: string, patch: Partial<Pick<Client, "state" | "insurer" | "dealType" | "lifeContingent" | "ipa">>) => void;
   moveClient: (id: string, repId: string) => void;
   deleteClient: (id: string) => void;
   setLink: (clientId: string, pieceId: string, url: string, customLabel: string) => string | null;
@@ -182,6 +183,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           insurer: INSURERS[input.insurer] ? input.insurer : "",
           dealType: input.dealType === "spia" ? "spia" : "structured",
           lifeContingent: input.lifeContingent === true,
+          ipa: input.ipa === true,
           links: {},
           createdAt: now,
           updatedAt: now,
@@ -209,6 +211,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           insurer: patch.insurer === undefined ? current.insurer : INSURERS[patch.insurer] ? patch.insurer : "",
           dealType: patch.dealType === "spia" || patch.dealType === "structured" ? patch.dealType : current.dealType,
           lifeContingent: typeof patch.lifeContingent === "boolean" ? patch.lifeContingent : current.lifeContingent === true,
+          ipa: typeof patch.ipa === "boolean" ? patch.ipa : current.ipa === true,
           updatedAt: new Date().toISOString(),
         };
         publish(repsRef.current, clientsRef.current.map((client) => (client.id === id ? next : client)));

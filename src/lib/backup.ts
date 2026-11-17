@@ -120,6 +120,7 @@ function sanitizeClient(raw: unknown): { client: Client; skippedLinks: number } 
       insurer,
       dealType,
       lifeContingent: raw.lifeContingent === true,
+      ipa: raw.ipa === true,
       links: linksResult.links,
       createdAt: typeof raw.createdAt === "string" ? raw.createdAt : now,
       updatedAt: typeof raw.updatedAt === "string" ? raw.updatedAt : now,
