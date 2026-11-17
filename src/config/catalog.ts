@@ -903,6 +903,26 @@ export const AUTHORIZATION_FORM = "https://cbcsettlementfundings-my.sharepoint.c
 /** Blank Fasano template from the CBCisstant sidebar. Not fetched. */
 export const FASANO_FORM = "https://cbcsettlementfundings-my.sharepoint.com/:b:/g/personal/jrairigh_cbcsettlementfunding_com/EceYDgEAuFFAsfhP8Bon9hABgCG3KMfmjaqWk-kXsgCiBQ?e=aKI9sk";
 
+/** Blank advance letter on the shared drive. Not fetched. */
+export const ADVANCE_FORM = "https://cbcsettlementfundings-my.sharepoint.com/:w:/g/personal/jrairigh_cbcsettlementfunding_com/EW5Qiva7E21JkbyIQax_C0MBIIiZNey8mg1l_u4FjxFvdQ?e=UOaht5";
+
+/** Blank best-interest declaration from the CBCisstant sidebar. Not fetched. */
+export const BEST_INTEREST_FORM = "https://cbcsettlementfundings-my.sharepoint.com/:w:/g/personal/jrairigh_cbcsettlementfunding_com/EZGgcilwEdBHmnBywjSFM3ABdyIxBmjDIfvvk33fdfgP_A?e=0AkBOR";
+
+/** Shared-drive templates from the CBCisstant Quick Links list. */
+export const QUICK_LINKS = [
+  { label: "Advance Document", url: ADVANCE_FORM },
+  { label: "Fasano Document", url: FASANO_FORM },
+  { label: "Authorization to Release Information", url: AUTHORIZATION_FORM },
+  { label: "Best Interest Declaration", url: BEST_INTEREST_FORM },
+] as const;
+
+/**
+ * Wire origination fee in dollars. Null means the advance form leaves the
+ * fee blank so it can be typed. A number prefills the fee and stays editable.
+ */
+export const WIRE_FEE: number | null = null;
+
 /** Berkshire may appear at the hearing in these states. */
 export const BIFCO_STATES = ["CA","AZ","FL","MS","TX","IN","IL","PA","NY"];
 

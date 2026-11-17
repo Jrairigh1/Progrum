@@ -9,7 +9,9 @@
     "preview": "vite preview --host 127.0.0.1 --port 4173 --strictPort"
   },
   "dependencies": {
+    "docxtemplater": "^3.71.1",
     "firebase": "^11.10.0",
+    "pizzip": "^3.3.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },
