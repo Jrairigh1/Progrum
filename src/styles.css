@@ -528,13 +528,29 @@ main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 48
   background: transparent;
   width: min(480px, calc(100% - 24px));
 }
+.modal-wide { width: min(760px, calc(100% - 24px)); }
 .modal::backdrop { background: rgba(4, 32, 71, 0.55); }
 .modal-card {
   background: var(--paper);
   border-radius: 16px;
   padding: 20px;
   box-shadow: var(--shadow);
+  max-height: min(86vh, 860px);
+  overflow: auto;
 }
+.q-list { display: flex; flex-direction: column; gap: 0; margin: 4px 0; }
+.q-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  padding: 8px 0;
+  border-top: 1px solid var(--line);
+}
+.q-row p { margin: 0; }
+.q-row fieldset { border: 0; margin: 0; padding: 0; display: flex; gap: 12px; }
+.contact-block { margin: 8px 0; padding-top: 8px; border-top: 1px solid var(--line); }
+.contact-block h3 { margin: 0 0 8px; font-size: 1rem; color: var(--navy); }
 .modal-card h2 { font-family: var(--serif); color: var(--navy); margin: 0 0 8px; }
 .modal-card form { display: flex; flex-direction: column; gap: 8px; }
 .modal-actions { justify-content: flex-end; margin-top: 8px; }

@@ -6,6 +6,7 @@ import { linkStamp } from "../lib/links";
 import { repHref } from "../lib/routing";
 import { useStore } from "../store";
 import { AdvanceDialog } from "./AdvanceDoc";
+import { ContinuedContactDialog, LifeAffidavitDialog } from "./LifeDocs";
 import { CopyLinks, StateForms } from "./CopyLinks";
 import { ConfirmDialog, LinkDialog, MoveDialog, NameDialog } from "./dialogs";
 import { Guidance } from "./Guidance";
@@ -23,6 +24,8 @@ export function BoardPage({ clientId }: { clientId: string }) {
   const [moving, setMoving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [advance, setAdvance] = useState(false);
+  const [lifeDoc, setLifeDoc] = useState(false);
+  const [notifierDoc, setNotifierDoc] = useState(false);
 
   useEffect(() => {
     setEditing(null);
@@ -85,7 +88,7 @@ export function BoardPage({ clientId }: { clientId: string }) {
         </div>
         <div className="button-row">
           <button type="button" className="btn ghost" onClick={() => setAdvance(true)}>
-            Generate advance doc
+            Advance document
           </button>
           <button type="button" className="btn ghost" onClick={() => setRenaming(true)}>
             Rename
@@ -263,6 +266,14 @@ export function BoardPage({ clientId }: { clientId: string }) {
               <p className="hint">
                 These four count toward the total. Turning Life contingent off hides them and keeps any links already saved.
               </p>
+              <div className="button-row">
+                <button type="button" className="btn" onClick={() => setLifeDoc(true)}>
+                  Life Affidavit
+                </button>
+                <button type="button" className="btn" onClick={() => setNotifierDoc(true)}>
+                  2 Person Notifier (Designation of Continued Contact)
+                </button>
+              </div>
               <ExtraStrip
                 pieces={lifePieces}
                 links={client.links}
@@ -319,6 +330,8 @@ export function BoardPage({ clientId }: { clientId: string }) {
       </div>
 
       <AdvanceDialog open={advance} clientName={client.name} onClose={() => setAdvance(false)} />
+      <LifeAffidavitDialog open={lifeDoc} clientName={client.name} onClose={() => setLifeDoc(false)} />
+      <ContinuedContactDialog open={notifierDoc} clientName={client.name} onClose={() => setNotifierDoc(false)} />
       {editing && (
         <LinkDialog
           key={`${editing.id}:${client.links[editing.id]?.url ?? ""}`}
