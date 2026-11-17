@@ -36,7 +36,7 @@ npm ci
 npm run dev
 ```
 
-The dev server uses the same `/progrum/` base path as GitHub Pages, so open the URL Vite prints and include `/progrum/`.
+Open the URL Vite prints. The production build uses relative asset paths, so the same files work at the Pages URL regardless of the repository name’s capitalization.
 
 ```bash
 npm run build
@@ -51,7 +51,7 @@ Before the first deploy, in the GitHub repository settings, set **Settings → P
 
 After a push to `main` finishes deploying, the site is at:
 
-https://jrairigh1.github.io/progrum/
+https://jrairigh1.github.io/Progrum/
 
 ## What came from CBCisstant
 

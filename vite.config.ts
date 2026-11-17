@@ -31,7 +31,8 @@ function pagesCsp(): Plugin {
 }
 
 export default defineConfig({
-  base: "/progrum/",
+  // Relative URLs so GitHub Pages can serve the repo at /Progrum/ or any other casing.
+  base: "./",
   plugins: [react(), pagesCsp()],
   build: {
     sourcemap: false,
