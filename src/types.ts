@@ -5,6 +5,8 @@ export interface LinkRecord {
   label: string;
   labelIsCustom: boolean;
   addedAt: string;
+  updatedAt?: string;
+  updatedBy?: string;
 }
 
 export interface Rep {

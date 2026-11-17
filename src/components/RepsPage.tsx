@@ -20,7 +20,11 @@ export function RepsPage() {
       <div className="page-head">
         <div>
           <h1>Sales reps</h1>
-          <p>Open a rep to see that book of clients. The first visit on this browser starts with James.</p>
+          <p>
+            {store.mode === "sharepoint"
+              ? "These boards are shared with coworkers who sign in."
+              : "Open a rep to see that book of clients. The first visit on this browser starts with James."}
+          </p>
         </div>
         <button type="button" className="btn" onClick={() => setAdding(true)}>
           Add rep
@@ -90,8 +94,8 @@ export function RepsPage() {
         title={`Delete ${deleting?.name ?? "rep"}?`}
         body={
           deleteCount
-            ? `This removes the rep and ${deleteCount} client board${deleteCount === 1 ? "" : "s"} from this browser. Links stored here are deleted. Files on the shared drive are not touched.`
-            : "This removes the rep from this browser."
+            ? `This removes the rep and ${deleteCount} client board${deleteCount === 1 ? "" : "s"} from ${store.mode === "sharepoint" ? "the shared boards" : "this browser"}. Files on the shared drive are not touched.`
+            : `This removes the rep from ${store.mode === "sharepoint" ? "the shared boards" : "this browser"}.`
         }
         confirmLabel="Delete rep"
         danger

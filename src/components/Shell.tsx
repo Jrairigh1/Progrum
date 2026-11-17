@@ -11,6 +11,7 @@ export function Shell({ children }: { children: ReactNode }) {
   const store = useStore();
   const [query, setQuery] = useState("");
   const [pending, setPending] = useState<{ reps: number; clients: number; note: string; state: ReturnType<typeof parseBackup> & { ok: true } } | null>(null);
+  const [importLocal, setImportLocal] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
     const stopNavigation = (event: DragEvent) => {
@@ -118,7 +119,18 @@ export function Shell({ children }: { children: ReactNode }) {
           )}
         </form>
         <div className="top-actions">
-          <span className="privacy-chip">Stored in this browser</span>
+          <span className="privacy-chip">{store.mode === "sharepoint" ? "Shared on SharePoint" : "Stored in this browser"}</span>
+          {store.account && <span className="privacy-chip">{store.account.name}</span>}
+          {store.mode === "sharepoint" && store.localBoardCount > 0 && (
+            <button type="button" className="btn ghost light" onClick={() => setImportLocal(true)}>
+              Import local boards
+            </button>
+          )}
+          {store.account && (
+            <button type="button" className="btn ghost light" onClick={() => store.signOut()}>
+              Sign out
+            </button>
+          )}
           <button type="button" className="btn ghost light" onClick={() => downloadBackup({ version: 1, reps: store.reps, clients: store.clients })}>
             Export
           </button>
@@ -139,9 +151,16 @@ export function Shell({ children }: { children: ReactNode }) {
           />
         </div>
       </header>
+      {store.mode === "local" && (
+        <p className="config-banner" role="status">
+          Microsoft 365 sign-in is not configured yet. Boards stay on this browser, and coworkers cannot see them.
+        </p>
+      )}
       <main>{children}</main>
       <footer className="foot">
-        Names and document links stay in this browser. Progrum does not upload files or open the links itself.
+        {store.mode === "sharepoint"
+          ? "Names and links are stored in the CBC SharePoint site for people who sign in. Progrum does not open the files."
+          : "Names and document links stay in this browser. Progrum does not upload files or open the links itself."}
       </footer>
       {store.toast && (
         <div className="toast" role="status">
@@ -149,11 +168,26 @@ export function Shell({ children }: { children: ReactNode }) {
         </div>
       )}
       <ConfirmDialog
+        open={importLocal}
+        title="Copy this browser's boards to SharePoint?"
+        body={`This adds ${store.localBoardCount} client board${store.localBoardCount === 1 ? "" : "s"} saved on this browser to the shared lists. A client who is already there under the same rep is left in place, and only missing links are filled in.`}
+        confirmLabel="Import"
+        onClose={() => setImportLocal(false)}
+        onConfirm={() => {
+          store.importLocalBoards();
+          setImportLocal(false);
+        }}
+      />
+      <ConfirmDialog
         open={Boolean(pending)}
         title="Replace data on this browser?"
         body={
           pending
-            ? `This backup has ${pending.reps} rep${pending.reps === 1 ? "" : "s"} and ${pending.clients} client${pending.clients === 1 ? "" : "s"}.${pending.note} Current boards on this browser will be overwritten. The file is not uploaded.`
+            ? `This backup has ${pending.reps} rep${pending.reps === 1 ? "" : "s"} and ${pending.clients} client${pending.clients === 1 ? "" : "s"}.${pending.note} ${
+                store.mode === "sharepoint"
+                  ? "Current shared boards will be replaced. The data is written only to the CBC SharePoint site."
+                  : "Current boards on this browser will be overwritten. The file is not uploaded."
+              }`
             : ""
         }
         confirmLabel="Replace"
@@ -162,7 +196,7 @@ export function Shell({ children }: { children: ReactNode }) {
         onConfirm={() => {
           if (!pending) return;
           store.replaceAll(pending.state.state);
-          store.notify("Backup imported on this browser.");
+          store.notify(store.mode === "sharepoint" ? "Backup imported to SharePoint." : "Backup imported on this browser.");
           setPending(null);
           location.hash = "#/";
         }}
