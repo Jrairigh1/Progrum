@@ -1,0 +1,204 @@
+/**
+ * Standard intake documents. Add, rename, or remove pieces here.
+ * Order is the order on the puzzle and in the missing list.
+ * State and insurer rules below can append extra pieces. They do not
+ * replace this list.
+ */
+import {
+  AFFIDAVIT_FORMS,
+  AUTHORIZATION_FORM,
+  INSURERS,
+  STATES,
+  type InsurerRule,
+  type StateRule,
+} from "./catalog";
+import type { DealType, PieceDef } from "../types";
+
+interface PieceSeed {
+  id: string;
+  label: string;
+  short: string;
+  hint: string;
+}
+
+export const CORE_PIECES: PieceSeed[] = [
+  { id: "contract", label: "Contract", short: "Contract", hint: "Signed funding contract." },
+  { id: "id", label: "ID", short: "ID", hint: "Government-issued photo identification." },
+  { id: "proof-social", label: "Proof of Social", short: "Proof of Social", hint: "Proof of Social Security number." },
+  { id: "residence-1", label: "Proof of Residence #1", short: "Residence #1", hint: "First proof of residence." },
+  { id: "residence-2", label: "Proof of Residence #2", short: "Residence #2", hint: "Second proof of residence." },
+  {
+    id: "hold-time",
+    label: "Hold Time",
+    short: "Hold Time",
+    hint: "Hold-time document. The day count from the state list appears once a state is chosen.",
+  },
+  {
+    id: "docusign-contract",
+    label: "DocuSign Summary for Contract",
+    short: "DocuSign · Contract",
+    hint: "DocuSign certificate of completion for the contract.",
+  },
+  {
+    id: "docusign-hold",
+    label: "DocuSign Summary for Hold Time",
+    short: "DocuSign · Hold Time",
+    hint: "DocuSign certificate of completion for hold time.",
+  },
+  { id: "settlement", label: "Settlement Agreement", short: "Settlement", hint: "Underlying settlement agreement." },
+  { id: "benefits", label: "Benefits Letter", short: "Benefits Letter", hint: "Current benefits letter from the insurer." },
+  { id: "funding", label: "Funding Instructions", short: "Funding", hint: "Instructions for where funds are sent." },
+];
+
+export interface PieceProfile {
+  state: string;
+  insurer: string;
+  dealType: DealType;
+}
+
+interface PieceContext extends PieceProfile {
+  stateRule?: StateRule;
+  insurerRule?: InsurerRule;
+}
+
+interface ExtraRule {
+  id: string;
+  label: string;
+  short: string;
+  hint: string;
+  when: (ctx: PieceContext) => boolean;
+  badge?: (ctx: PieceContext) => string | undefined;
+  formUrl?: (ctx: PieceContext) => string | undefined;
+  formLabel?: string;
+}
+
+const CLEARING_PAYS = new Set(["AG", "FM", "USNY", "US"]);
+
+/**
+ * Extra documents drawn from CBCisstant. A rule adds a piece only when
+ * the client's state, insurer, or deal type calls for it.
+ */
+export const EXTRA_PIECE_RULES: ExtraRule[] = [
+  {
+    id: "ipa",
+    label: "Independent Professional Advice",
+    short: "IPA",
+    hint: "Independent professional advice required so the client understands the transaction.",
+    when: (ctx) => ctx.dealType !== "spia" && ctx.stateRule?.requiresIPA === "Yes",
+    badge: () => "State required",
+  },
+  {
+    id: "affidavit",
+    label: "Affidavit",
+    short: "Affidavit",
+    hint: "Court affidavit required by this state.",
+    when: (ctx) => ctx.dealType !== "spia" && ctx.stateRule?.requiresAffDec === "Aff",
+    badge: () => "State required",
+    formUrl: (ctx) => AFFIDAVIT_FORMS[ctx.state],
+    formLabel: "Open company affidavit form",
+  },
+  {
+    id: "declaration",
+    label: "Declaration",
+    short: "Declaration",
+    hint: "Court declaration required by this state.",
+    when: (ctx) => ctx.dealType !== "spia" && ctx.stateRule?.requiresAffDec === "Dec",
+    badge: () => "State required",
+    formUrl: (ctx) => AFFIDAVIT_FORMS[ctx.state],
+    formLabel: "Open company declaration form",
+  },
+  {
+    id: "auth-release",
+    label: "Authorization to Release Information",
+    short: "Auth to Release",
+    hint: "Signed authorization and benefits request used to clear pays with this insurer.",
+    when: (ctx) => CLEARING_PAYS.has(ctx.insurer),
+    badge: () => "Insurer required",
+    formUrl: () => AUTHORIZATION_FORM,
+    formLabel: "Open company authorization form",
+  },
+  {
+    id: "policyholder-affidavit",
+    label: "Policyholder Affidavit",
+    short: "Policyholder Affidavit",
+    hint: "Symetra requires a policyholder affidavit.",
+    when: (ctx) => ctx.insurer === "SY",
+    badge: () => "Insurer required",
+  },
+  {
+    id: "signed-consent",
+    label: "Signed Consent Form",
+    short: "Signed Consent",
+    hint: "Pacific Life needs a signed consent form.",
+    when: (ctx) => ctx.insurer === "PL",
+    badge: () => "Insurer required",
+  },
+  {
+    id: "policy-copy",
+    label: "Policy Copy",
+    short: "Policy Copy",
+    hint: "Transamerica asks for a policy copy with the application.",
+    when: (ctx) => ctx.insurer === "TA",
+    badge: () => "Insurer required",
+  },
+  {
+    id: "payment-history",
+    label: "Payment History",
+    short: "Payment History",
+    hint: "Mass Mutual requires a detailed payment history.",
+    when: (ctx) => ctx.insurer === "MM",
+    badge: () => "Insurer required",
+  },
+];
+
+const KNOWN_IDS = new Set<string>([
+  ...CORE_PIECES.map((piece) => piece.id),
+  ...EXTRA_PIECE_RULES.map((rule) => rule.id),
+]);
+
+export function isKnownPieceId(id: string): boolean {
+  return KNOWN_IDS.has(id);
+}
+
+function contextFor(profile: PieceProfile): PieceContext {
+  return {
+    ...profile,
+    stateRule: STATES[profile.state],
+    insurerRule: INSURERS[profile.insurer],
+  };
+}
+
+function holdBadge(ctx: PieceContext): string | undefined {
+  const days = ctx.stateRule?.holdTime;
+  if (ctx.dealType === "spia") {
+    if (days && days !== "N/A") return `SPIA · state lists ${days} days`;
+    return "SPIA · confirm hold";
+  }
+  if (!days) return undefined;
+  if (days === "N/A") return "No statutory hold";
+  return `${days} days`;
+}
+
+export function piecesFor(profile: PieceProfile): PieceDef[] {
+  const ctx = contextFor(profile);
+  const core: PieceDef[] = CORE_PIECES.map((piece) => ({
+    ...piece,
+    group: "core",
+    badge: piece.id === "hold-time" ? holdBadge(ctx) : undefined,
+  }));
+  const extras: PieceDef[] = EXTRA_PIECE_RULES.filter((rule) => rule.when(ctx)).map((rule) => ({
+    id: rule.id,
+    label: rule.label,
+    short: rule.short,
+    hint: rule.hint,
+    group: "extra",
+    badge: rule.badge?.(ctx),
+    formUrl: rule.formUrl?.(ctx),
+    formLabel: rule.formLabel,
+  }));
+  return [...core, ...extras];
+}
+
+export function corePieceCount(): number {
+  return CORE_PIECES.length;
+}
