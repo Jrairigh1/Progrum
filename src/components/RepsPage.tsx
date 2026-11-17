@@ -2,12 +2,14 @@ import { useState } from "react";
 import { compareNames, sumProgress } from "../lib/clients";
 import { repHref } from "../lib/routing";
 import { useStore } from "../store";
+import { AdvanceDialog, QuickLinks } from "./AdvanceDoc";
 import { ConfirmDialog, NameDialog } from "./dialogs";
 import { Meter, Ring } from "./ui";
 
 export function RepsPage() {
   const store = useStore();
   const [adding, setAdding] = useState(false);
+  const [advance, setAdvance] = useState(false);
   const [renameId, setRenameId] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const reps = [...store.reps].sort((a, b) => compareNames(a.name, b.name));
@@ -26,6 +28,8 @@ export function RepsPage() {
           Add rep
         </button>
       </div>
+      <QuickLinks onAdvance={() => setAdvance(true)} />
+      <AdvanceDialog open={advance} onClose={() => setAdvance(false)} />
       {reps.length === 0 ? (
         <div className="empty">
           <h2>No reps yet</h2>

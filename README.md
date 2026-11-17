@@ -15,13 +15,14 @@ This site is published on public GitHub Pages. There is no login. Anyone with th
 - An optional name in the header is saved in this browser only and stamped on edits. It is not an account.
 - Export downloads a JSON backup. Import replaces the shared boards with that file. **Import local boards** copies a previous browser-only copy up once.
 - Delete a client or a rep to remove them for everyone. A confirmation is required. Files on the shared drive are not touched.
-- Do not commit client names, backup files, or documents. `.gitignore` blocks common document types (pdf, jpg, png, heic, docx, and others) outside the app's own asset folders, and it ignores `progrum-backup-*.json`.
+- Do not commit client names, backup files, or filled documents. `.gitignore` blocks common document types (pdf, jpg, png, heic, docx, and others) outside the app's own asset folders, and it ignores `progrum-backup-*.json`. The blank advance letter in `public/templates` is the exception: it contains no client data.
+- **Generate advance doc** builds a letter in this browser and downloads it. The file is not saved to Firestore or to the shared boards.
 
 A new shared list starts with one rep, James. Deleting that rep stays deleted.
 
 ## Using the boards
 
-1. Open a rep, then add a client.
+1. Open a rep, then add a client. The reps screen also has **Quick links** to the shared-drive Advance, Fasano, Authorization to Release, and Best Interest Declaration templates. **Advance document** on that screen, and **Generate advance doc** on a client board, fill the blank advance letter locally. The wire fee default is `WIRE_FEE` in `src/config/catalog.ts` (`null` means type it each time).
 2. Set the state, the insurance company, and whether the file is a structured settlement or a SPIA. Guidance on the board updates, and extra pieces appear when that state or insurer requires another document. Check **Life contingent** on create, or later on the board, to also require Life Affidavit, 2 Person Notifier, Fasano, and DocuCert for Fasano. Unchecking hides those pieces and keeps any links already saved. **IPA** adds IPA Invoice and IPA W9. States in `IPA_REQUIRED_STATES` (`src/config/catalog.ts`) force those pieces on. Every other state leaves the checkbox optional.
 3. Click a grey piece and paste an https link, or drag a link onto the piece. An optional display name overrides the name taken from the address. The piece shows that name, the date it was added, and an Open button.
 4. The status line reads “X of N complete” and lists every missing piece. N is 11 unless extra documents apply, including the four life-contingent pieces when that option is on. **Copy all links** includes those pieces in the same way.

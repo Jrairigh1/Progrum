@@ -318,6 +318,38 @@ main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 48
   background: var(--paper);
   font: inherit;
 }
+.quick-links {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  padding: 16px 16px 8px;
+  margin-bottom: 18px;
+}
+.quick-links-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+.quick-links h2 { font-family: var(--serif); color: var(--navy); margin: 0 0 8px; }
+.quick-links ul { list-style: none; padding: 0; margin: 8px 0 0; }
+.quick-links li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  padding: 8px 0;
+  border-top: 1px solid var(--line);
+}
+.quick-links a { color: var(--navy-mid); }
+.advance-preview {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 16px;
+  margin: 8px 0 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--cream);
+}
+.advance-preview div { min-width: 0; }
+.advance-preview dt { font-size: 0.75rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+.advance-preview dd { margin: 2px 0 0; overflow-wrap: anywhere; }
 .state-forms {
   background: var(--paper);
   border: 1px solid var(--line);

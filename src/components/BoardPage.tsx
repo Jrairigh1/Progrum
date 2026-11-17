@@ -5,6 +5,7 @@ import { progressFor } from "../lib/clients";
 import { linkStamp } from "../lib/links";
 import { repHref } from "../lib/routing";
 import { useStore } from "../store";
+import { AdvanceDialog } from "./AdvanceDoc";
 import { CopyLinks, StateForms } from "./CopyLinks";
 import { ConfirmDialog, LinkDialog, MoveDialog, NameDialog } from "./dialogs";
 import { Guidance } from "./Guidance";
@@ -21,6 +22,7 @@ export function BoardPage({ clientId }: { clientId: string }) {
   const [renaming, setRenaming] = useState(false);
   const [moving, setMoving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [advance, setAdvance] = useState(false);
 
   useEffect(() => {
     setEditing(null);
@@ -82,6 +84,9 @@ export function BoardPage({ clientId }: { clientId: string }) {
           </p>
         </div>
         <div className="button-row">
+          <button type="button" className="btn ghost" onClick={() => setAdvance(true)}>
+            Generate advance doc
+          </button>
           <button type="button" className="btn ghost" onClick={() => setRenaming(true)}>
             Rename
           </button>
@@ -313,6 +318,7 @@ export function BoardPage({ clientId }: { clientId: string }) {
         </div>
       </div>
 
+      <AdvanceDialog open={advance} clientName={client.name} onClose={() => setAdvance(false)} />
       {editing && (
         <LinkDialog
           key={`${editing.id}:${client.links[editing.id]?.url ?? ""}`}
