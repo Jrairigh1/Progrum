@@ -213,7 +213,7 @@ export function ClientDialog({
           <input type="checkbox" checked={lifeContingent} onChange={(event) => setLifeContingent(event.target.checked)} />
           Life contingent
         </label>
-        <p className="hint">Adds Life Affidavit, 2 Person Notifier, Fasano, and DocuCert for Fasano.</p>
+        <p className="hint">Adds Life Affidavit, 2 Person Notifier, Fasano, DocuCert for Fasano, and Life Expectancy Doc.</p>
         <label className="checkline">
           <input
             type="checkbox"

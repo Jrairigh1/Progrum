@@ -195,9 +195,17 @@ export const EXTRA_PIECE_RULES: ExtraRule[] = [
     when: (ctx) => ctx.lifeContingent === true,
     badge: () => "Life contingent",
   },
+  {
+    id: "life-expectancy",
+    label: "Life Expectancy Doc",
+    short: "Life Expectancy Doc",
+    hint: "Life expectancy document required when the file is life contingent.",
+    when: (ctx) => ctx.lifeContingent === true,
+    badge: () => "Life contingent",
+  },
 ];
 
-export const LIFE_PIECE_IDS = ["life-affidavit", "two-person-notifier", "fasano", "docucert-fasano"] as const;
+export const LIFE_PIECE_IDS = ["life-affidavit", "two-person-notifier", "fasano", "docucert-fasano", "life-expectancy"] as const;
 
 export const IPA_PIECE_IDS = ["ipa-invoice", "ipa-w9"] as const;
 
