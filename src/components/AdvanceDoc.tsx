@@ -15,29 +15,107 @@ function startingFee(wire: boolean): string {
   return WIRE_FEE === null ? "" : formatPlainAmount(WIRE_FEE);
 }
 
+const QUICK_LINKS_KEY = "progrum-quick-links-collapsed";
+const NARROW_QUERY = "(max-width: 860px)";
+
+function readQuickLinksCollapsed(): boolean {
+  try {
+    return localStorage.getItem(QUICK_LINKS_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function writeQuickLinksCollapsed(collapsed: boolean) {
+  try {
+    localStorage.setItem(QUICK_LINKS_KEY, collapsed ? "1" : "0");
+  } catch {
+    /* The sidebar still collapses for this visit. */
+  }
+}
+
 export function QuickLinks({ onAdvance }: { onAdvance: () => void }) {
+  const [collapsed, setCollapsed] = useState(readQuickLinksCollapsed);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [narrow, setNarrow] = useState(() => window.matchMedia(NARROW_QUERY).matches);
+
+  useEffect(() => {
+    const media = window.matchMedia(NARROW_QUERY);
+    const onChange = () => setNarrow(media.matches);
+    media.addEventListener("change", onChange);
+    return () => media.removeEventListener("change", onChange);
+  }, []);
+
+  useEffect(() => {
+    if (!drawerOpen) return;
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") setDrawerOpen(false);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [drawerOpen]);
+
+  function showLinks() {
+    if (window.matchMedia(NARROW_QUERY).matches) {
+      setDrawerOpen((open) => !open);
+      return;
+    }
+    setCollapsed(false);
+    writeQuickLinksCollapsed(false);
+  }
+
+  function hideLinks() {
+    if (window.matchMedia(NARROW_QUERY).matches) {
+      setDrawerOpen(false);
+      return;
+    }
+    setCollapsed(true);
+    writeQuickLinksCollapsed(true);
+  }
+
   return (
-    <section className="quick-links">
-      <div className="quick-links-head">
-        <div>
+    <aside className={`quick-rail ${collapsed ? "is-collapsed" : ""} ${drawerOpen ? "is-drawer-open" : ""}`}>
+      <button
+        type="button"
+        className="quick-toggle"
+        aria-expanded={narrow ? drawerOpen : !collapsed}
+        onClick={showLinks}
+      >
+        Quick links
+      </button>
+      {drawerOpen && (
+        <button type="button" className="quick-backdrop" aria-label="Close quick links" onClick={() => setDrawerOpen(false)} />
+      )}
+      <section className="quick-links" aria-label="Quick links">
+        <div className="quick-links-head">
           <h2>Quick links</h2>
-          <p className="hint">Blank company documents from CBCisstant. Progrum does not fetch or open them until you choose Open.</p>
+          <button type="button" className="btn ghost" onClick={hideLinks}>
+            Hide
+          </button>
         </div>
-        <button type="button" className="btn" onClick={onAdvance}>
+        <p className="hint">Blank company documents from CBCisstant. Progrum does not fetch or open them until you choose Open.</p>
+        <button
+          type="button"
+          className="btn quick-advance"
+          onClick={() => {
+            setDrawerOpen(false);
+            onAdvance();
+          }}
+        >
           Advance document
         </button>
-      </div>
-      <ul>
-        {QUICK_LINKS.map((link) => (
-          <li key={link.label}>
-            <span>{link.label}</span>
-            <a href={link.url} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer">
-              Open
-            </a>
-          </li>
-        ))}
-      </ul>
-    </section>
+        <ul>
+          {QUICK_LINKS.map((link) => (
+            <li key={link.label}>
+              <span>{link.label}</span>
+              <a href={link.url} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer">
+                Open
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </aside>
   );
 }
 
