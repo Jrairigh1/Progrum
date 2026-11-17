@@ -5,6 +5,7 @@ import { progressFor } from "../lib/clients";
 import { linkStamp } from "../lib/links";
 import { repHref } from "../lib/routing";
 import { useStore } from "../store";
+import { CopyLinks, StateForms } from "./CopyLinks";
 import { ConfirmDialog, LinkDialog, MoveDialog, NameDialog } from "./dialogs";
 import { Guidance } from "./Guidance";
 import { ExtraStrip, PuzzleBoard } from "./Puzzle";
@@ -131,6 +132,8 @@ export function BoardPage({ clientId }: { clientId: string }) {
         </fieldset>
       </form>
 
+      <CopyLinks client={client} pieces={progress.pieces} />
+
       <div className="board-layout">
         <div>
           <div className="status" aria-live="polite">
@@ -228,7 +231,10 @@ export function BoardPage({ clientId }: { clientId: string }) {
             })}
           </ol>
         </div>
-        <Guidance client={client} />
+        <div>
+          <StateForms stateCode={client.state} />
+          <Guidance client={client} />
+        </div>
       </div>
 
       {editing && (
