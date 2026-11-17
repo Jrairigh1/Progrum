@@ -264,7 +264,7 @@ export function BoardPage({ clientId }: { clientId: string }) {
             <div className="extra-block">
               <h2>Life contingent documents</h2>
               <p className="hint">
-                These four count toward the total. Turning Life contingent off hides them and keeps any links already saved.
+                These five count toward the total. Turning Life contingent off hides them and keeps any links already saved.
               </p>
               <div className="button-row">
                 <button type="button" className="btn" onClick={() => setLifeDoc(true)}>
