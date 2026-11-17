@@ -904,19 +904,36 @@ export const INSURERS: Record<string, InsurerRule> = {
 };
 
 
-/** Blank affidavit or declaration forms, keyed by state code. */
-export const AFFIDAVIT_FORMS: Record<string, string> = {
-  "AZ": "https://cbcsettlementfundings-my.sharepoint.com/:w:/g/personal/jrairigh_cbcsettlementfunding_com/EX5OVAz2g_NPtbpMvNvXwLAB-lQhm6cehevqh_qVJf4QVQ?e=mdiqwl",
-  "CA": "https://cbcsettlementfundings-my.sharepoint.com/:w:/g/personal/jrairigh_cbcsettlementfunding_com/EaVi9NxoxbxGrFzsQ2iYDeUBqeoy3ZW79PI5nME-nc0t6w?e=70DlAS",
-  "FL": "https://cbcsettlementfundings-my.sharepoint.com/:w:/g/personal/jrairigh_cbcsettlementfunding_com/Eb68Bv5LIMhEmpjIQJEfTNYB11T9irngJDUaY_Ao11q5Zw?e=579H42",
-  "MN": "https://cbcsettlementfundings-my.sharepoint.com/:w:/g/personal/jrairigh_cbcsettlementfunding_com/EfP6Jno_WmRJgr_-jPGM6ywBJkUUqc03GTyJek4VILGYlQ?e=NPiDjb",
-  "NV": "https://cbcsettlementfundings-my.sharepoint.com/:w:/g/personal/jrairigh_cbcsettlementfunding_com/Eftca_XX8LZAvW2P1glqmBMBrMyeCnV0Emzyf1tk0Qrhhw?e=cSwHg3",
-  "NY": "https://cbcsettlementfundings-my.sharepoint.com/:w:/g/personal/jrairigh_cbcsettlementfunding_com/Ea4FziALeI1KuQEPA96myCkBl_ovUNEwN1Cwa1f34gzIOA?e=3BvMe3",
-  "OR": "https://cbcsettlementfundings-my.sharepoint.com/:w:/g/personal/jrairigh_cbcsettlementfunding_com/EeCNMEvG7G1JphaVQgWCNCoBZJTVU-yE-hXr3_lHDK90mw?e=gGDiY3",
-  "PA": "https://cbcsettlementfundings-my.sharepoint.com/:w:/g/personal/jrairigh_cbcsettlementfunding_com/ESlaxbDJHqVGlRouXaf-TWcBWXxfO2jkULE4BDJNlY7cEg?e=S8fuuG",
-  "TN": "https://cbcsettlementfundings-my.sharepoint.com/:w:/g/personal/jrairigh_cbcsettlementfunding_com/ER9UnFgLtgdGlRdCiNWyrFoB47yMWgysFkFH8kUlojNTDQ?e=1ILhFM",
-  "WI": "https://cbcsettlementfundings-my.sharepoint.com/:w:/g/personal/jrairigh_cbcsettlementfunding_com/EVcnVEL7CAVInZTMZfgAt34BfsoYSzs3qht6FF5fUi7MYw?e=fjTTcV"
+export interface StateForm {
+  name: string;
+  url: string;
+}
+
+/**
+ * Blank state templates published in CBCisstant. These are company forms to
+ * send or fill, not the client's own documents. Progrum never fetches them.
+ */
+export const STATE_FORMS: Record<string, StateForm[]> = {
+  AZ: [{ name: "Declaration", url: "https://cbcsettlementfundings-my.sharepoint.com/:w:/g/personal/jrairigh_cbcsettlementfunding_com/EX5OVAz2g_NPtbpMvNvXwLAB-lQhm6cehevqh_qVJf4QVQ?e=mdiqwl" }],
+  CA: [{ name: "Declaration", url: "https://cbcsettlementfundings-my.sharepoint.com/:w:/g/personal/jrairigh_cbcsettlementfunding_com/EaVi9NxoxbxGrFzsQ2iYDeUBqeoy3ZW79PI5nME-nc0t6w?e=70DlAS" }],
+  FL: [{ name: "Affidavit", url: "https://cbcsettlementfundings-my.sharepoint.com/:w:/g/personal/jrairigh_cbcsettlementfunding_com/Eb68Bv5LIMhEmpjIQJEfTNYB11T9irngJDUaY_Ao11q5Zw?e=579H42" }],
+  MN: [{ name: "Affidavit", url: "https://cbcsettlementfundings-my.sharepoint.com/:w:/g/personal/jrairigh_cbcsettlementfunding_com/EfP6Jno_WmRJgr_-jPGM6ywBJkUUqc03GTyJek4VILGYlQ?e=NPiDjb" }],
+  NV: [{ name: "Affidavit", url: "https://cbcsettlementfundings-my.sharepoint.com/:w:/g/personal/jrairigh_cbcsettlementfunding_com/Eftca_XX8LZAvW2P1glqmBMBrMyeCnV0Emzyf1tk0Qrhhw?e=cSwHg3" }],
+  NY: [{ name: "Affidavit", url: "https://cbcsettlementfundings-my.sharepoint.com/:w:/g/personal/jrairigh_cbcsettlementfunding_com/Ea4FziALeI1KuQEPA96myCkBl_ovUNEwN1Cwa1f34gzIOA?e=3BvMe3" }],
+  OR: [{ name: "Declaration", url: "https://cbcsettlementfundings-my.sharepoint.com/:w:/g/personal/jrairigh_cbcsettlementfunding_com/EeCNMEvG7G1JphaVQgWCNCoBZJTVU-yE-hXr3_lHDK90mw?e=gGDiY3" }],
+  PA: [{ name: "Declaration", url: "https://cbcsettlementfundings-my.sharepoint.com/:w:/g/personal/jrairigh_cbcsettlementfunding_com/ESlaxbDJHqVGlRouXaf-TWcBWXxfO2jkULE4BDJNlY7cEg?e=S8fuuG" }],
+  TN: [{ name: "Affidavit", url: "https://cbcsettlementfundings-my.sharepoint.com/:w:/g/personal/jrairigh_cbcsettlementfunding_com/ER9UnFgLtgdGlRdCiNWyrFoB47yMWgysFkFH8kUlojNTDQ?e=1ILhFM" }],
+  WI: [{ name: "Affidavit", url: "https://cbcsettlementfundings-my.sharepoint.com/:w:/g/personal/jrairigh_cbcsettlementfunding_com/EVcnVEL7CAVInZTMZfgAt34BfsoYSzs3qht6FF5fUi7MYw?e=fjTTcV" }],
 };
+
+/** First blank affidavit or declaration form for a state, used by extra pieces. */
+export const AFFIDAVIT_FORMS: Record<string, string> = Object.fromEntries(
+  Object.entries(STATE_FORMS).flatMap(([code, forms]) => (forms[0] ? [[code, forms[0].url]] : [])),
+);
+
+export function stateFormsFor(code: string): StateForm[] {
+  return STATE_FORMS[code] ?? [];
+}
 
 
 /** Blank authorization-to-release form. */
