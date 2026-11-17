@@ -182,6 +182,7 @@ img { max-width: 100%; }
 
 main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 48px; }
 .page-head { display: flex; justify-content: space-between; gap: 16px; align-items: flex-end; margin-bottom: 22px; }
+.ipa-badge,
 .life-badge {
   display: inline-block;
   margin-left: 8px;
@@ -197,6 +198,8 @@ main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 48
   vertical-align: middle;
   white-space: nowrap;
 }
+.ipa-badge { background: #f8f1e2; }
+.ipa-note { flex-basis: 100%; margin: 0; }
 .form-ref a { color: var(--navy-mid); }
 .page-head h1, .empty h1, .empty h2, .guidance h2, .status h2, .extra-block h2 {
   font-family: var(--serif);
@@ -254,6 +257,7 @@ main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 48
 .meta-form fieldset { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center; }
 .meta-form legend { width: 100%; }
 .checkline { flex-direction: row !important; align-items: center; gap: 8px; margin: 4px 0; white-space: nowrap; }
+.checkline:has(input:disabled) { color: var(--muted); }
 .meta-form input[type="checkbox"],
 .meta-form input[type="radio"],
 .modal-card input[type="checkbox"],

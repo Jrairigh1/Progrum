@@ -8,13 +8,25 @@
 
 export interface StateRule {
   rateCap: string;
-  requiresIPA: "Yes" | "No";
   requiresAffDec: "No" | "Aff" | "Dec";
   noPoachState: "Yes" | "No";
   additionalNotes: string;
   legalCounsel: string;
   expectedLegalFee: string;
   holdTime: string;
+}
+
+/**
+ * States that require independent professional advice.
+ * Edit this list to add or remove a state. It is the only place that
+ * decision is stored. Taken from CBCisstant index.html, stateData, where
+ * requiresIPA is "Yes": Alaska, Delaware, Louisiana, Maine, Maryland,
+ * and North Carolina.
+ */
+export const IPA_REQUIRED_STATES = ["AK", "DE", "LA", "ME", "MD", "NC"] as const;
+
+export function ipaRequired(stateCode: string): boolean {
+  return (IPA_REQUIRED_STATES as readonly string[]).includes(stateCode);
 }
 
 export interface InsurerRule {
@@ -30,7 +42,6 @@ export interface InsurerRule {
 export const STATES: Record<string, StateRule> = {
   "AL": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "No",
     "noPoachState": "No",
     "additionalNotes": "",
@@ -40,7 +51,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "AK": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "Yes",
     "requiresAffDec": "No",
     "noPoachState": "No",
     "additionalNotes": "",
@@ -50,7 +60,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "AZ": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "Dec",
     "noPoachState": "No",
     "additionalNotes": "",
@@ -60,7 +69,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "AR": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "No",
     "noPoachState": "No",
     "additionalNotes": "",
@@ -70,7 +78,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "CA": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "Dec",
     "noPoachState": "No",
     "additionalNotes": "California has specific county rules. Orange County judges prefer effective rates below 20%, but deals have been done at 25% in the last 3-4 years, so it's not a hard rule. Fresno County is the hardest in the state; judges scrutinize all facts closely, including any priors, and may push for a lower rate to give the client more money (often requires IPA after approving the sale, which can be difficult).",
@@ -80,7 +87,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "CO": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "No",
     "noPoachState": "No",
     "additionalNotes": "",
@@ -90,7 +96,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "CT": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "No",
     "noPoachState": "No",
     "additionalNotes": "",
@@ -100,7 +105,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "DE": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "Yes",
     "requiresAffDec": "No",
     "noPoachState": "No",
     "additionalNotes": "",
@@ -110,7 +114,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "DC": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "No",
     "noPoachState": "No",
     "additionalNotes": "",
@@ -120,7 +123,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "FL": {
     "rateCap": "None but possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "Aff",
     "noPoachState": "No",
     "additionalNotes": "",
@@ -130,7 +132,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "GA": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "No",
     "noPoachState": "Yes",
     "additionalNotes": "",
@@ -140,7 +141,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "HI": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "No",
     "noPoachState": "No",
     "additionalNotes": "",
@@ -150,7 +150,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "ID": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "No",
     "noPoachState": "No",
     "additionalNotes": "",
@@ -160,7 +159,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "IL": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "No",
     "noPoachState": "No",
     "additionalNotes": "Cook County has specific rules. Cook County (Chicago) has an unwritten rule that effective rates need to be at 15.00% or below.",
@@ -170,7 +168,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "IN": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "No",
     "noPoachState": "No",
     "additionalNotes": "",
@@ -180,7 +177,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "IA": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "No",
     "noPoachState": "No",
     "additionalNotes": "",
@@ -190,7 +186,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "KS": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "No",
     "noPoachState": "No",
     "additionalNotes": "",
@@ -200,7 +195,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "KY": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "No",
     "noPoachState": "No",
     "additionalNotes": "",
@@ -210,7 +204,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "LA": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "Yes",
     "requiresAffDec": "No",
     "noPoachState": "Yes",
     "additionalNotes": "",
@@ -220,7 +213,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "ME": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "Yes",
     "requiresAffDec": "No",
     "noPoachState": "No",
     "additionalNotes": "",
@@ -230,7 +222,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "MD": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "Yes",
     "requiresAffDec": "No",
     "noPoachState": "No",
     "additionalNotes": "",
@@ -240,7 +231,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "MA": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "No",
     "noPoachState": "No",
     "additionalNotes": "",
@@ -250,7 +240,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "MI": {
     "rateCap": "25%",
-    "requiresIPA": "No",
     "requiresAffDec": "No",
     "noPoachState": "No",
     "additionalNotes": "",
@@ -260,7 +249,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "MN": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "Aff",
     "noPoachState": "Yes",
     "additionalNotes": "",
@@ -270,7 +258,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "MS": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "No",
     "noPoachState": "No",
     "additionalNotes": "",
@@ -280,7 +267,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "MO": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "No",
     "noPoachState": "No",
     "additionalNotes": "",
@@ -290,7 +276,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "MT": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "No",
     "noPoachState": "No",
     "additionalNotes": "",
@@ -300,7 +285,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "NE": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "No",
     "noPoachState": "No",
     "additionalNotes": "Lincoln County used to have judges who wanted all deals below 15.00%, but those judges are mostly retired, so deals can now be done at 29.99% if desired.",
@@ -310,7 +294,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "NV": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "Aff",
     "noPoachState": "Yes",
     "additionalNotes": "",
@@ -320,7 +303,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "NH": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "No",
     "noPoachState": "No",
     "additionalNotes": "",
@@ -330,7 +312,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "NJ": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "No",
     "noPoachState": "No",
     "additionalNotes": "New Jersey has varying county rules. Counties like Atlantic, Cumberland, Bergen, Middlesex, and Ocean have judges who may require rates at or below 15.00%, depending on the judge assigned.",
@@ -340,7 +321,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "NM": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "No",
     "noPoachState": "No",
     "additionalNotes": "",
@@ -350,7 +330,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "NY": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "Aff",
     "noPoachState": "No",
     "additionalNotes": "New York has specific county rules. Judges vary by county on their opinion of these deals. In the 5 boroughs of NYC, deals are heavily scrutinized. Manhattan (New York County) needs to be priced in the high single digits/low double digits. Brooklyn (Kings County), Bronx (Bronx County), Queens (Queens County), and Staten Island (Richmond County) all differ; it's best to ask UW before pricing a New York file.",
@@ -360,7 +339,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "NC": {
     "rateCap": "12.5% (5% above current prime rate, changes monthly)",
-    "requiresIPA": "Yes",
     "requiresAffDec": "No",
     "noPoachState": "No",
     "additionalNotes": "",
@@ -370,7 +348,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "ND": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "No",
     "noPoachState": "No",
     "additionalNotes": "",
@@ -380,7 +357,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "OH": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "No",
     "noPoachState": "No",
     "additionalNotes": "Cuyahoga County has specific rules. Cuyahoga County (Cleveland) has an unwritten rule that the disclosure quotient must exceed 50.00% for court approval, but many deals have been completed below this threshold depending on cash flow, term of payments, purchase price, and the client's reasons for transfer.",
@@ -390,7 +366,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "OK": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "No",
     "noPoachState": "No",
     "additionalNotes": "",
@@ -400,7 +375,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "OR": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "Dec",
     "noPoachState": "No",
     "additionalNotes": "",
@@ -410,7 +384,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "PA": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "Dec",
     "noPoachState": "No",
     "additionalNotes": "Pennsylvania has specific county rules. Allegheny County (Pittsburgh) has a rotation of 5 judges who try to get rates down to 15.00% or lower and will scrutinize the client's situation very closely.",
@@ -420,7 +393,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "RI": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "No",
     "noPoachState": "No",
     "additionalNotes": "",
@@ -430,7 +402,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "SC": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "No",
     "noPoachState": "Yes",
     "additionalNotes": "",
@@ -440,7 +411,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "SD": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "No",
     "noPoachState": "No",
     "additionalNotes": "",
@@ -450,7 +420,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "TN": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "Aff",
     "noPoachState": "No",
     "additionalNotes": "Shelby County has specific rules. Shelby County (Memphis) has a judge whose initial reaction to applications is to deny the petition; there are no unwritten rules, and the judge reviews each case individually to determine what the client must show for approval (Shelby has 3 or 4 judges, so the odds of drawing this strict judge are 1 in 3 or 1 in 4).",
@@ -460,7 +429,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "TX": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "No",
     "noPoachState": "No",
     "additionalNotes": "Harris County has specific rules. Harris County (Houston) has a few judges who prefer deals not to exceed 25%, but it depends on the judge assigned after filing; Texas counsel will provide a heads-up on the judge assignment, which is passed on to the rep and Mike immediately.",
@@ -470,7 +438,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "UT": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "No",
     "noPoachState": "No",
     "additionalNotes": "",
@@ -480,7 +447,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "VT": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "No",
     "noPoachState": "No",
     "additionalNotes": "",
@@ -490,7 +456,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "VA": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "No",
     "noPoachState": "No",
     "additionalNotes": "",
@@ -500,7 +465,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "WA": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "No",
     "noPoachState": "No",
     "additionalNotes": "",
@@ -510,7 +474,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "WV": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "No",
     "noPoachState": "No",
     "additionalNotes": "",
@@ -520,7 +483,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "WI": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "Aff",
     "noPoachState": "No",
     "additionalNotes": "",
@@ -530,7 +492,6 @@ export const STATES: Record<string, StateRule> = {
   },
   "WY": {
     "rateCap": "None but if possible stay under 24.99%",
-    "requiresIPA": "No",
     "requiresAffDec": "No",
     "noPoachState": "No",
     "additionalNotes": "",

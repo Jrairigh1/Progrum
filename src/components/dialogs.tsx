@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
-import { insurerOptions, stateOptions } from "../config/catalog";
+import { insurerOptions, ipaRequired, stateName, stateOptions } from "../config/catalog";
 import { formatAdded, parseHttpsUrl } from "../lib/links";
 import { safeHref } from "./Puzzle";
 import type { DealType, LinkRecord, PieceDef } from "../types";
@@ -139,13 +139,14 @@ export function ClientDialog({
 }: {
   open: boolean;
   onClose: () => void;
-  onCreate: (input: { name: string; state: string; insurer: string; dealType: DealType; lifeContingent: boolean }) => string | null;
+  onCreate: (input: { name: string; state: string; insurer: string; dealType: DealType; lifeContingent: boolean; ipa: boolean }) => string | null;
 }) {
   const [name, setName] = useState("");
   const [state, setState] = useState("");
   const [insurer, setInsurer] = useState("");
   const [dealType, setDealType] = useState<DealType>("structured");
   const [lifeContingent, setLifeContingent] = useState(false);
+  const [ipa, setIpa] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const nameId = useId();
   useEffect(() => {
@@ -155,13 +156,14 @@ export function ClientDialog({
       setInsurer("");
       setDealType("structured");
       setLifeContingent(false);
+      setIpa(false);
       setError(null);
     }
   }, [open]);
 
   function submit(event: FormEvent) {
     event.preventDefault();
-    const result = onCreate({ name, state, insurer, dealType, lifeContingent });
+    const result = onCreate({ name, state, insurer, dealType, lifeContingent, ipa });
     if (result) setError(result);
     else onClose();
   }
@@ -210,6 +212,20 @@ export function ClientDialog({
           Life contingent
         </label>
         <p className="hint">Adds Life Affidavit, 2 Person Notifier, Fasano, and DocuCert for Fasano.</p>
+        <label className="checkline">
+          <input
+            type="checkbox"
+            checked={ipaRequired(state) || ipa}
+            disabled={ipaRequired(state)}
+            onChange={(event) => setIpa(event.target.checked)}
+          />
+          IPA
+        </label>
+        <p className="hint">
+          {ipaRequired(state)
+            ? `IPA required in ${stateName(state)}. Adds IPA Invoice and IPA W9.`
+            : "Adds IPA Invoice and IPA W9. Optional unless the state requires it."}
+        </p>
         {error && <p className="form-error">{error}</p>}
         <div className="modal-actions">
           <button type="button" className="btn ghost" onClick={onClose}>

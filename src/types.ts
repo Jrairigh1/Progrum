@@ -24,6 +24,8 @@ export interface Client {
   dealType: DealType;
   /** Extra life-contingent documents. Missing on older records means false. */
   lifeContingent: boolean;
+  /** Optional IPA Invoice and W9. Required states show those pieces even when this is false. */
+  ipa: boolean;
   links: Record<string, LinkRecord>;
   createdAt: string;
   updatedAt: string;

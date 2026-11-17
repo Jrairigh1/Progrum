@@ -5,6 +5,7 @@ import {
   METLIFE_SPLIT_STATES,
   STATES,
   insurerName,
+  ipaRequired,
   stateName,
   underwriterFor,
 } from "../config/catalog";
@@ -38,7 +39,7 @@ export interface GuidanceModel {
   costs: GuidanceCost | null;
 }
 
-export function guidanceFor(profile: { state: string; insurer: string; dealType: DealType }): GuidanceModel {
+export function guidanceFor(profile: { state: string; insurer: string; dealType: DealType; ipa?: boolean }): GuidanceModel {
   const state = STATES[profile.state];
   const insurer = INSURERS[profile.insurer];
   const spia = profile.dealType === "spia";
@@ -86,8 +87,8 @@ export function guidanceFor(profile: { state: string; insurer: string; dealType:
     });
     stateRows.push({
       label: "Independent professional advice",
-      value: spia ? "Not added on a SPIA" : state.requiresIPA === "Yes" ? "Required" : "Not required",
-      detail: "Some states require independent advice so the client understands the transaction. CBCisstant prices that at $1,500.",
+      value: ipaRequired(profile.state) ? "Required" : profile.ipa ? "Added for this file" : "Optional",
+      detail: "IPA Invoice and IPA W9. Required states always include them. Every other state can add them from the board. CBCisstant prices required IPA at $1,500 on a structured settlement.",
     });
     stateRows.push({
       label: "Affidavit or declaration",
@@ -125,7 +126,7 @@ export function guidanceFor(profile: { state: string; insurer: string; dealType:
     stateRows,
     insurerTitle: insurer ? insurerName(profile.insurer) : null,
     insurerRows,
-    costs: spia ? spiaCosts() : costBlock(profile.state, profile.insurer),
+    costs: spia ? spiaCosts() : costBlock(profile.state, profile.insurer, ipaRequired(profile.state) || profile.ipa === true),
   };
 }
 
@@ -167,7 +168,7 @@ function spiaCosts(): GuidanceCost {
   };
 }
 
-function costBlock(stateCode: string, insurerCode: string): GuidanceCost | null {
+function costBlock(stateCode: string, insurerCode: string, includeIpa: boolean): GuidanceCost | null {
   const state = STATES[stateCode];
   const insurer = INSURERS[insurerCode];
   if (!state || !insurer) return null;
@@ -183,7 +184,7 @@ function costBlock(stateCode: string, insurerCode: string): GuidanceCost | null 
   else total += legal;
   if (admin === null) incomplete = true;
   else total += admin;
-  if (state.requiresIPA === "Yes") {
+  if (includeIpa) {
     lines.push({ label: "IPA fee", value: formatDollars(IPA_FEE) });
     total += IPA_FEE;
   }

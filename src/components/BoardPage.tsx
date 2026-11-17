@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { insurerOptions, stateOptions } from "../config/catalog";
-import { corePieceCount, LIFE_PIECE_IDS } from "../config/pieces";
+import { insurerOptions, ipaRequired, stateName, stateOptions } from "../config/catalog";
+import { corePieceCount, IPA_PIECE_IDS, LIFE_PIECE_IDS } from "../config/pieces";
 import { progressFor } from "../lib/clients";
 import { linkStamp } from "../lib/links";
 import { repHref } from "../lib/routing";
@@ -45,8 +45,11 @@ export function BoardPage({ clientId }: { clientId: string }) {
   const core = progress.pieces.filter((piece) => piece.group === "core").slice(0, corePieceCount());
   const extras = progress.pieces.filter((piece) => piece.group === "extra");
   const lifeIds = new Set<string>(LIFE_PIECE_IDS);
+  const ipaIds = new Set<string>(IPA_PIECE_IDS);
   const lifePieces = extras.filter((piece) => lifeIds.has(piece.id));
-  const statePieces = extras.filter((piece) => !lifeIds.has(piece.id));
+  const ipaPieces = extras.filter((piece) => ipaIds.has(piece.id));
+  const statePieces = extras.filter((piece) => !lifeIds.has(piece.id) && !ipaIds.has(piece.id));
+  const ipaForced = ipaRequired(client.state);
   const fasanoHref = safeHref(lifePieces.find((piece) => piece.id === "fasano")?.formUrl);
   const done = progress.total > 0 && progress.missing.length === 0;
 
@@ -71,6 +74,7 @@ export function BoardPage({ clientId }: { clientId: string }) {
         <div>
           <h1>
             {client.name}
+            {(ipaForced || client.ipa) && <span className="ipa-badge">IPA</span>}
             {client.lifeContingent && <span className="life-badge">Life contingent</span>}
           </h1>
           <p>
@@ -144,6 +148,18 @@ export function BoardPage({ clientId }: { clientId: string }) {
             />
             Life contingent
           </label>
+          <label className="checkline">
+            <input
+              type="checkbox"
+              checked={ipaForced || client.ipa}
+              disabled={ipaForced}
+              onChange={(event) => {
+                if (!ipaForced) store.updateClient(client.id, { ipa: event.target.checked });
+              }}
+            />
+            IPA
+          </label>
+          {ipaForced && <p className="hint ipa-note">IPA required in {stateName(client.state)}</p>}
         </fieldset>
       </form>
 
@@ -216,6 +232,25 @@ export function BoardPage({ clientId }: { clientId: string }) {
               </>
             )}
           </div>
+
+          {ipaPieces.length > 0 && (
+            <div className="extra-block">
+              <h2>IPA</h2>
+              <p className="hint">
+                {ipaForced
+                  ? `IPA required in ${stateName(client.state)}. These two count toward the total.`
+                  : "These two count toward the total. Turning IPA off hides them and keeps any links already saved."}
+              </p>
+              <ExtraStrip
+                pieces={ipaPieces}
+                links={client.links}
+                onEdit={setEditing}
+                onClear={setClearing}
+                onDropLink={dropLink}
+                onReject={(message) => store.notify(message)}
+              />
+            </div>
+          )}
 
           {lifePieces.length > 0 && (
             <div className="extra-block">

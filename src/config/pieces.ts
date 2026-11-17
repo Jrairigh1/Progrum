@@ -10,6 +10,7 @@ import {
   FASANO_FORM,
   INSURERS,
   STATES,
+  ipaRequired,
   type InsurerRule,
   type StateRule,
 } from "./catalog";
@@ -56,6 +57,7 @@ export interface PieceProfile {
   insurer: string;
   dealType: DealType;
   lifeContingent?: boolean;
+  ipa?: boolean;
 }
 
 interface PieceContext extends PieceProfile {
@@ -82,12 +84,20 @@ const CLEARING_PAYS = new Set(["AG", "FM", "USNY", "US"]);
  */
 export const EXTRA_PIECE_RULES: ExtraRule[] = [
   {
-    id: "ipa",
-    label: "Independent Professional Advice",
-    short: "IPA",
-    hint: "Independent professional advice required so the client understands the transaction.",
-    when: (ctx) => ctx.dealType !== "spia" && ctx.stateRule?.requiresIPA === "Yes",
-    badge: () => "State required",
+    id: "ipa-invoice",
+    label: "IPA Invoice",
+    short: "IPA Invoice",
+    hint: "Invoice from the independent professional advisor.",
+    when: (ctx) => ipaApplies(ctx),
+    badge: (ctx) => (ipaRequired(ctx.state) ? "State required" : "IPA"),
+  },
+  {
+    id: "ipa-w9",
+    label: "IPA W9",
+    short: "IPA W9",
+    hint: "W-9 from the independent professional advisor.",
+    when: (ctx) => ipaApplies(ctx),
+    badge: (ctx) => (ipaRequired(ctx.state) ? "State required" : "IPA"),
   },
   {
     id: "affidavit",
@@ -188,6 +198,12 @@ export const EXTRA_PIECE_RULES: ExtraRule[] = [
 ];
 
 export const LIFE_PIECE_IDS = ["life-affidavit", "two-person-notifier", "fasano", "docucert-fasano"] as const;
+
+export const IPA_PIECE_IDS = ["ipa-invoice", "ipa-w9"] as const;
+
+function ipaApplies(ctx: PieceContext): boolean {
+  return ipaRequired(ctx.state) || ctx.ipa === true;
+}
 
 const KNOWN_IDS = new Set<string>([
   ...CORE_PIECES.map((piece) => piece.id),

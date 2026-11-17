@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { insurerName, stateName } from "../config/catalog";
+import { insurerName, ipaRequired, stateName } from "../config/catalog";
 import { compareNames, progressFor } from "../lib/clients";
 import { clientHref } from "../lib/routing";
 import { useStore } from "../store";
@@ -58,6 +58,7 @@ export function ClientsPage({ repId }: { repId: string }) {
                   <div>
                     <h2>
                       {client.name}
+                      {(ipaRequired(client.state) || client.ipa) && <span className="ipa-badge">IPA</span>}
                       {client.lifeContingent && <span className="life-badge">Life contingent</span>}
                     </h2>
                     <p className="quiet">
