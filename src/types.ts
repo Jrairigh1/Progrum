@@ -22,6 +22,8 @@ export interface Client {
   state: string;
   insurer: string;
   dealType: DealType;
+  /** Extra life-contingent documents. Missing on older records means false. */
+  lifeContingent: boolean;
   links: Record<string, LinkRecord>;
   createdAt: string;
   updatedAt: string;

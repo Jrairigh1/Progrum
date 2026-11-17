@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { insurerOptions, stateOptions } from "../config/catalog";
-import { corePieceCount } from "../config/pieces";
+import { corePieceCount, LIFE_PIECE_IDS } from "../config/pieces";
 import { progressFor } from "../lib/clients";
 import { linkStamp } from "../lib/links";
 import { repHref } from "../lib/routing";
@@ -8,7 +8,7 @@ import { useStore } from "../store";
 import { CopyLinks, StateForms } from "./CopyLinks";
 import { ConfirmDialog, LinkDialog, MoveDialog, NameDialog } from "./dialogs";
 import { Guidance } from "./Guidance";
-import { ExtraStrip, PuzzleBoard } from "./Puzzle";
+import { ExtraStrip, PuzzleBoard, safeHref } from "./Puzzle";
 import { Crumbs, Meter } from "./ui";
 import type { DealType, PieceDef } from "../types";
 
@@ -44,6 +44,10 @@ export function BoardPage({ clientId }: { clientId: string }) {
   const progress = progressFor(client);
   const core = progress.pieces.filter((piece) => piece.group === "core").slice(0, corePieceCount());
   const extras = progress.pieces.filter((piece) => piece.group === "extra");
+  const lifeIds = new Set<string>(LIFE_PIECE_IDS);
+  const lifePieces = extras.filter((piece) => lifeIds.has(piece.id));
+  const statePieces = extras.filter((piece) => !lifeIds.has(piece.id));
+  const fasanoHref = safeHref(lifePieces.find((piece) => piece.id === "fasano")?.formUrl);
   const done = progress.total > 0 && progress.missing.length === 0;
 
   function saveLink(piece: PieceDef, url: string, label: string) {
@@ -65,7 +69,10 @@ export function BoardPage({ clientId }: { clientId: string }) {
       <Crumbs rep={rep} client={client} />
       <div className="page-head">
         <div>
-          <h1>{client.name}</h1>
+          <h1>
+            {client.name}
+            {client.lifeContingent && <span className="life-badge">Life contingent</span>}
+          </h1>
           <p>
             Click a piece to paste an https link, or drag a link onto it. {progress.filled} of {progress.total} complete.
           </p>
@@ -129,6 +136,14 @@ export function BoardPage({ clientId }: { clientId: string }) {
             />
             SPIA
           </label>
+          <label className="checkline">
+            <input
+              type="checkbox"
+              checked={client.lifeContingent}
+              onChange={(event) => store.updateClient(client.id, { lifeContingent: event.target.checked })}
+            />
+            Life contingent
+          </label>
         </fieldset>
       </form>
 
@@ -143,7 +158,7 @@ export function BoardPage({ clientId }: { clientId: string }) {
               </p>
               {extras.length > 0 && (
                 <p className="hint">
-                  Standard {corePieceCount()}, plus {extras.length} for this state or insurer.
+                  Standard {corePieceCount()}, plus {extras.length} more for this file.
                 </p>
               )}
               <Meter filled={progress.filled} total={progress.total} />
@@ -181,7 +196,7 @@ export function BoardPage({ clientId }: { clientId: string }) {
 
           <div className="extra-block">
             <h2>State and insurer documents</h2>
-            {extras.length === 0 ? (
+            {statePieces.length === 0 ? (
               <p className="hint">
                 {client.state || client.insurer
                   ? "No extra documents for this selection. The standard 11 still apply."
@@ -191,7 +206,7 @@ export function BoardPage({ clientId }: { clientId: string }) {
               <>
                 <p className="hint">These pieces are added from the state and insurer rules. They count toward the total.</p>
                 <ExtraStrip
-                  pieces={extras}
+                  pieces={statePieces}
                   links={client.links}
                   onEdit={setEditing}
                   onClear={setClearing}
@@ -201,6 +216,32 @@ export function BoardPage({ clientId }: { clientId: string }) {
               </>
             )}
           </div>
+
+          {lifePieces.length > 0 && (
+            <div className="extra-block">
+              <h2>Life contingent documents</h2>
+              <p className="hint">
+                These four count toward the total. Turning Life contingent off hides them and keeps any links already saved.
+              </p>
+              <ExtraStrip
+                pieces={lifePieces}
+                links={client.links}
+                onEdit={setEditing}
+                onClear={setClearing}
+                onDropLink={dropLink}
+                onReject={(message) => store.notify(message)}
+              />
+              {fasanoHref && (
+                <p className="hint form-ref">
+                  Blank Fasano template:{" "}
+                  <a href={fasanoHref} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer">
+                    Open
+                  </a>
+                  . This is the company form, not this client&apos;s document.
+                </p>
+              )}
+            </div>
+          )}
 
           <ol className="doc-list">
             {progress.pieces.map((piece) => {

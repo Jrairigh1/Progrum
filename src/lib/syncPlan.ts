@@ -59,7 +59,8 @@ function clientCoreChanged(previous: Client, next: Client): boolean {
     previous.repId !== next.repId ||
     previous.state !== next.state ||
     previous.insurer !== next.insurer ||
-    previous.dealType !== next.dealType
+    previous.dealType !== next.dealType ||
+    previous.lifeContingent !== next.lifeContingent
   );
 }
 
