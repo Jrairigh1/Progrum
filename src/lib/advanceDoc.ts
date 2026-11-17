@@ -58,9 +58,28 @@ export function fileDateFromLetter(value: string): string | null {
   return `${parsed.year}-${month}-${day}`;
 }
 
+export function cleanDocText(value: string): string {
+  return value.replace(/[{}]/g, "").replace(/\s+/g, " ").trim();
+}
+
+export function blankLine(value: string, width: number): string {
+  const clean = cleanDocText(value);
+  return clean || "_".repeat(width);
+}
+
+export function documentFileName(title: string, clientName: string, fileDate: string): string {
+  const safe = cleanDocText(clientName).replace(/[\\/:*?"<>|\u0000-\u001f]+/g, " ").replace(/\s+/g, " ").trim();
+  return `${title} - ${safe} - ${fileDate}.docx`;
+}
+
 export function advanceFileName(clientName: string, fileDate: string): string {
-  const safe = clientName.replace(/[\\/:*?"<>|\u0000-\u001f]+/g, " ").replace(/\s+/g, " ").trim();
-  return `Advance - ${safe} - ${fileDate}.docx`;
+  return documentFileName("Advance", clientName, fileDate);
+}
+
+/** A blank letter date still needs a calendar day in the file name. */
+export function fileDateOrToday(letterDate: string, now = new Date()): string | null {
+  if (!letterDate.trim()) return fileDateFromLetter(todayLetterDate(now));
+  return fileDateFromLetter(letterDate);
 }
 
 export function previewAdvance(input: {
@@ -95,14 +114,28 @@ export function previewAdvance(input: {
   };
 }
 
-export function renderAdvanceDoc(template: ArrayBuffer | Uint8Array, preview: AdvancePreview): Uint8Array {
+export function renderTemplate(
+  template: ArrayBuffer | Uint8Array,
+  data: Record<string, string>,
+  prepare?: (xml: string) => string,
+): Uint8Array {
   const zip = new PizZip(template);
+  if (prepare) {
+    const file = zip.file("word/document.xml");
+    if (!file) throw new Error("The template is missing its document.");
+    zip.file("word/document.xml", prepare(file.asText()));
+  }
   const doc = new Docxtemplater(zip, {
     delimiters: { start: "{", end: "}" },
     paragraphLoop: false,
     linebreaks: false,
   });
-  doc.render({
+  doc.render(data);
+  return doc.getZip().generate({ type: "uint8array" });
+}
+
+export function renderAdvanceDoc(template: ArrayBuffer | Uint8Array, preview: AdvancePreview): Uint8Array {
+  return renderTemplate(template, {
     date: preview.date,
     clientName: preview.clientName,
     advanceAmount: preview.advanceAmount,
@@ -110,7 +143,6 @@ export function renderAdvanceDoc(template: ArrayBuffer | Uint8Array, preview: Ad
     feeLabel: preview.feeLabel,
     feeAmount: preview.feeAmount,
   });
-  return doc.getZip().generate({ type: "uint8array" });
 }
 
 export function downloadBytes(bytes: Uint8Array, fileName: string): void {
@@ -127,20 +159,25 @@ export function downloadBytes(bytes: Uint8Array, fileName: string): void {
   URL.revokeObjectURL(url);
 }
 
-let templateRequest: Promise<ArrayBuffer> | null = null;
+const templateRequests = new Map<string, Promise<ArrayBuffer>>();
+
+export function loadTemplate(fileName: string): Promise<ArrayBuffer> {
+  const existing = templateRequests.get(fileName);
+  if (existing) return existing;
+  const url = new URL(`templates/${fileName}`, document.baseURI).href;
+  const pending = fetch(url)
+    .then(async (response) => {
+      if (!response.ok) throw new Error("The document template could not be loaded.");
+      return response.arrayBuffer();
+    })
+    .catch((error: unknown) => {
+      templateRequests.delete(fileName);
+      throw error;
+    });
+  templateRequests.set(fileName, pending);
+  return pending;
+}
 
 export function loadAdvanceTemplate(): Promise<ArrayBuffer> {
-  if (!templateRequest) {
-    const url = new URL("templates/advance-template.docx", document.baseURI).href;
-    templateRequest = fetch(url)
-      .then(async (response) => {
-        if (!response.ok) throw new Error("The advance template could not be loaded.");
-        return response.arrayBuffer();
-      })
-      .catch((error: unknown) => {
-        templateRequest = null;
-        throw error;
-      });
-  }
-  return templateRequest;
+  return loadTemplate("advance-template.docx");
 }

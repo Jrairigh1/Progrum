@@ -10,11 +10,13 @@ export function Modal({
   title,
   onClose,
   children,
+  wide,
 }: {
   open: boolean;
   title: string;
   onClose: () => void;
   children: ReactNode;
+  wide?: boolean;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {
@@ -33,7 +35,7 @@ export function Modal({
   return (
     <dialog
       ref={ref}
-      className="modal"
+      className={wide ? "modal modal-wide" : "modal"}
       onClose={onClose}
       onClick={(event) => {
         if (event.target === event.currentTarget) onClose();
