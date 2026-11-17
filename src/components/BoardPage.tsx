@@ -31,7 +31,7 @@ export function BoardPage({ clientId }: { clientId: string }) {
       <section className="page">
         <Crumbs />
         <div className="empty">
-          <h1>That client is not on this browser</h1>
+          <h1>That client is not on the shared boards</h1>
           <p>
             <a href="#/">Back to reps</a>
           </p>
@@ -247,7 +247,7 @@ export function BoardPage({ clientId }: { clientId: string }) {
       <ConfirmDialog
         open={Boolean(clearing)}
         title={`Remove the link for ${clearing?.label ?? "this piece"}?`}
-        body="The address is deleted from this browser. The file on the shared drive is not touched."
+        body="The address is removed for everyone. The file on the shared drive is not touched."
         confirmLabel="Clear link"
         danger
         onClose={() => setClearing(null)}
@@ -281,18 +281,14 @@ export function BoardPage({ clientId }: { clientId: string }) {
       <ConfirmDialog
         open={deleting}
         title={`Delete ${client.name}?`}
-        body={
-          store.mode === "sharepoint"
-            ? "This client and their links will be removed from the shared boards. Files on the shared drive are not touched."
-            : "The saved links for this client will be removed from this browser. Files on the shared drive are not touched."
-        }
+        body="This client and their links will be removed for everyone. Files on the shared drive are not touched."
         confirmLabel="Delete client"
         danger
         onClose={() => setDeleting(false)}
         onConfirm={() => {
           const repId = client.repId;
           store.deleteClient(client.id);
-          store.notify(`${client.name} was deleted from this browser.`);
+          store.notify(`${client.name} was removed from the shared boards.`);
           location.hash = repHref(repId);
         }}
       />

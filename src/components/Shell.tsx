@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
 import { downloadBackup, parseBackup } from "../lib/backup";
+import { getYourName, saveYourName } from "../lib/yourName";
 import { insurerName, stateName } from "../config/catalog";
 import { progressFor, searchClients } from "../lib/clients";
 import { clientHref } from "../lib/routing";
@@ -12,6 +13,7 @@ export function Shell({ children }: { children: ReactNode }) {
   const [query, setQuery] = useState("");
   const [pending, setPending] = useState<{ reps: number; clients: number; note: string; state: ReturnType<typeof parseBackup> & { ok: true } } | null>(null);
   const [importLocal, setImportLocal] = useState(false);
+  const [yourName, setYourName] = useState(getYourName);
   const fileRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
     const stopNavigation = (event: DragEvent) => {
@@ -91,7 +93,7 @@ export function Shell({ children }: { children: ReactNode }) {
           />
           {query.trim() && (
             <ul className="search-results">
-              {results.length === 0 && <li className="search-empty">No matching client on this browser.</li>}
+              {results.length === 0 && <li className="search-empty">No matching client.</li>}
               {results.map((client) => {
                 const rep = store.reps.find((item) => item.id === client.repId);
                 const progress = progressFor(client);
@@ -119,16 +121,23 @@ export function Shell({ children }: { children: ReactNode }) {
           )}
         </form>
         <div className="top-actions">
-          <span className="privacy-chip">{store.mode === "sharepoint" ? "Shared on SharePoint" : "Stored in this browser"}</span>
-          {store.account && <span className="privacy-chip">{store.account.name}</span>}
-          {store.mode === "sharepoint" && store.localBoardCount > 0 && (
+          <label className="your-name">
+            Your name
+            <input
+              value={yourName}
+              maxLength={80}
+              placeholder="Optional"
+              aria-label="Your name, shown on edits"
+              onChange={(event) => {
+                setYourName(event.target.value);
+                saveYourName(event.target.value);
+              }}
+            />
+          </label>
+          <span className="privacy-chip">Shared with anyone who has this link</span>
+          {store.localBoardCount > 0 && (
             <button type="button" className="btn ghost light" onClick={() => setImportLocal(true)}>
               Import local boards
-            </button>
-          )}
-          {store.account && (
-            <button type="button" className="btn ghost light" onClick={() => store.signOut()}>
-              Sign out
             </button>
           )}
           <button type="button" className="btn ghost light" onClick={() => downloadBackup({ version: 1, reps: store.reps, clients: store.clients })}>
@@ -151,16 +160,9 @@ export function Shell({ children }: { children: ReactNode }) {
           />
         </div>
       </header>
-      {store.mode === "local" && (
-        <p className="config-banner" role="status">
-          Microsoft 365 sign-in is not configured yet. Boards stay on this browser, and coworkers cannot see them.
-        </p>
-      )}
       <main>{children}</main>
       <footer className="foot">
-        {store.mode === "sharepoint"
-          ? "Names and links are stored in the CBC SharePoint site for people who sign in. Progrum does not open the files."
-          : "Names and document links stay in this browser. Progrum does not upload files or open the links itself."}
+        Names and links are stored in Firestore and anyone with this link can view or edit them. Progrum does not store or open the files.
       </footer>
       {store.toast && (
         <div className="toast" role="status">
@@ -169,8 +171,8 @@ export function Shell({ children }: { children: ReactNode }) {
       )}
       <ConfirmDialog
         open={importLocal}
-        title="Copy this browser's boards to SharePoint?"
-        body={`This adds ${store.localBoardCount} client board${store.localBoardCount === 1 ? "" : "s"} saved on this browser to the shared lists. A client who is already there under the same rep is left in place, and only missing links are filled in.`}
+        title="Copy this browser's boards to the shared list?"
+        body={`This adds ${store.localBoardCount} client board${store.localBoardCount === 1 ? "" : "s"} saved on this browser. A client already there under the same rep is left in place, and only missing links are filled in.`}
         confirmLabel="Import"
         onClose={() => setImportLocal(false)}
         onConfirm={() => {
@@ -180,14 +182,10 @@ export function Shell({ children }: { children: ReactNode }) {
       />
       <ConfirmDialog
         open={Boolean(pending)}
-        title="Replace data on this browser?"
+        title="Replace the shared boards?"
         body={
           pending
-            ? `This backup has ${pending.reps} rep${pending.reps === 1 ? "" : "s"} and ${pending.clients} client${pending.clients === 1 ? "" : "s"}.${pending.note} ${
-                store.mode === "sharepoint"
-                  ? "Current shared boards will be replaced. The data is written only to the CBC SharePoint site."
-                  : "Current boards on this browser will be overwritten. The file is not uploaded."
-              }`
+            ? `This backup has ${pending.reps} rep${pending.reps === 1 ? "" : "s"} and ${pending.clients} client${pending.clients === 1 ? "" : "s"}.${pending.note} Current shared boards will be replaced with this file.`
             : ""
         }
         confirmLabel="Replace"
@@ -196,7 +194,7 @@ export function Shell({ children }: { children: ReactNode }) {
         onConfirm={() => {
           if (!pending) return;
           store.replaceAll(pending.state.state);
-          store.notify(store.mode === "sharepoint" ? "Backup imported to SharePoint." : "Backup imported on this browser.");
+          store.notify("Backup imported to the shared boards.");
           setPending(null);
           location.hash = "#/";
         }}
