@@ -10,6 +10,7 @@ import {
   FASANO_FORM,
   INSURERS,
   LA_ABUSE_PIECES,
+  STATE_EXTRA_PIECES,
   STATES,
   ipaRequired,
   type InsurerRule,
@@ -121,6 +122,16 @@ export const EXTRA_PIECE_RULES: ExtraRule[] = [
     formUrl: (ctx) => AFFIDAVIT_FORMS[ctx.state],
     formLabel: "Open company declaration form",
   },
+  ...Object.entries(STATE_EXTRA_PIECES).flatMap(([code, pieces]) =>
+    pieces.map((piece) => ({
+      id: piece.id,
+      label: piece.label,
+      short: piece.short,
+      hint: piece.hint,
+      when: (ctx: PieceContext) => ctx.state === code,
+      badge: () => "State required",
+    })),
+  ),
   {
     id: "auth-release",
     label: "Authorization to Release Information",
