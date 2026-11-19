@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { insurerOptions, ipaRequired, stateName, stateOptions } from "../config/catalog";
+import { insurerOptions, ipaRequired, LA_ABUSE_PIECE_IDS, stateName, stateOptions } from "../config/catalog";
 import { IPA_PIECE_IDS, LIFE_PIECE_IDS, puzzleSlots } from "../config/pieces";
 import { progressFor } from "../lib/clients";
 import { linkStamp } from "../lib/links";
@@ -53,9 +53,11 @@ export function BoardPage({ clientId }: { clientId: string }) {
   const extras = progress.pieces.filter((piece) => piece.group === "extra");
   const lifeIds = new Set<string>(LIFE_PIECE_IDS);
   const ipaIds = new Set<string>(IPA_PIECE_IDS);
+  const laIds = new Set<string>(LA_ABUSE_PIECE_IDS);
   const lifePieces = extras.filter((piece) => lifeIds.has(piece.id));
   const ipaPieces = extras.filter((piece) => ipaIds.has(piece.id));
-  const statePieces = extras.filter((piece) => !lifeIds.has(piece.id) && !ipaIds.has(piece.id));
+  const laPieces = extras.filter((piece) => laIds.has(piece.id));
+  const statePieces = extras.filter((piece) => !lifeIds.has(piece.id) && !ipaIds.has(piece.id) && !laIds.has(piece.id));
   const ipaForced = !spia && ipaRequired(client.state);
   const fasanoHref = safeHref(lifePieces.find((piece) => piece.id === "fasano")?.formUrl);
   const done = progress.total > 0 && progress.missing.length === 0;
@@ -82,6 +84,7 @@ export function BoardPage({ clientId }: { clientId: string }) {
           <h1>
             {client.name}
             {spia && <span className="spia-badge">SPIA</span>}
+            {client.laAbuse && <span className="la-badge">LA abuse</span>}
             {(ipaForced || (!spia && client.ipa)) && <span className="ipa-badge">IPA</span>}
             {client.lifeContingent && <span className="life-badge">Life contingent</span>}
           </h1>
@@ -120,16 +123,18 @@ export function BoardPage({ clientId }: { clientId: string }) {
         <label>
           Insurance company
           <select
-            value={client.insurer}
+            value={client.laAbuse ? "" : client.insurer}
+            disabled={client.laAbuse}
             onChange={(event) => store.updateClient(client.id, { insurer: event.target.value })}
           >
-            <option value="">Select an insurer</option>
+            <option value="">{client.laAbuse ? "LA abuse" : "Select an insurer"}</option>
             {insurerOptions().map((option) => (
               <option key={option.code} value={option.code}>
                 {option.name}
               </option>
             ))}
           </select>
+          {client.laAbuse && <span className="hint">No insurance company for LA abuse cases</span>}
         </label>
         <fieldset>
           <legend>Deal type</legend>
@@ -140,6 +145,14 @@ export function BoardPage({ clientId }: { clientId: string }) {
               onChange={(event) => store.updateClient(client.id, { dealType: event.target.checked ? "spia" : "structured" })}
             />
             SPIA
+          </label>
+          <label className="checkline">
+            <input
+              type="checkbox"
+              checked={client.laAbuse}
+              onChange={(event) => store.updateClient(client.id, { laAbuse: event.target.checked })}
+            />
+            LA abuse
           </label>
           <label className="checkline">
             <input
@@ -234,6 +247,23 @@ export function BoardPage({ clientId }: { clientId: string }) {
               </>
             )}
           </div>
+
+          {laPieces.length > 0 && (
+            <div className="extra-block">
+              <h2>LA abuse documents</h2>
+              <p className="hint">
+                These two count toward the total. Turning LA abuse off hides them and keeps any links already saved.
+              </p>
+              <ExtraStrip
+                pieces={laPieces}
+                links={client.links}
+                onEdit={setEditing}
+                onClear={setClearing}
+                onDropLink={dropLink}
+                onReject={(message) => store.notify(message)}
+              />
+            </div>
+          )}
 
           {ipaPieces.length > 0 && (
             <div className="extra-block">

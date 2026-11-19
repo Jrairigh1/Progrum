@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { insurerName, ipaRequired, stateName } from "../config/catalog";
+import { clientInsurerLabel, ipaRequired, stateName } from "../config/catalog";
 import { compareNames, progressFor } from "../lib/clients";
 import { clientHref } from "../lib/routing";
 import { useStore } from "../store";
@@ -59,13 +59,14 @@ export function ClientsPage({ repId }: { repId: string }) {
                     <h2>
                       {client.name}
                       {client.dealType === "spia" && <span className="spia-badge">SPIA</span>}
+                      {client.laAbuse && <span className="la-badge">LA abuse</span>}
                       {client.dealType !== "spia" && (ipaRequired(client.state) || client.ipa) && <span className="ipa-badge">IPA</span>}
                       {client.lifeContingent && <span className="life-badge">Life contingent</span>}
                     </h2>
                     <p className="quiet">
                       {client.state ? stateName(client.state) : "No state"}
                       {" · "}
-                      {client.insurer ? insurerName(client.insurer) : "No insurer"}
+                      {clientInsurerLabel(client)}
                     </p>
                   </div>
                   <div className="row-progress">

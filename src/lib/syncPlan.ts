@@ -61,7 +61,8 @@ function clientCoreChanged(previous: Client, next: Client): boolean {
     previous.insurer !== next.insurer ||
     previous.dealType !== next.dealType ||
     previous.lifeContingent !== next.lifeContingent ||
-    previous.ipa !== next.ipa
+    previous.ipa !== next.ipa ||
+    previous.laAbuse !== next.laAbuse
   );
 }
 

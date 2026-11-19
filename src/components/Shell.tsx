@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
 import { downloadBackup, parseBackup } from "../lib/backup";
 import { getYourName, saveYourName } from "../lib/yourName";
-import { insurerName, stateName } from "../config/catalog";
+import { clientInsurerLabel, stateName } from "../config/catalog";
 import { progressFor, searchClients } from "../lib/clients";
 import { clientHref } from "../lib/routing";
 import { useStore } from "../store";
@@ -127,7 +127,7 @@ export function Shell({ children }: { children: ReactNode }) {
                       <span>
                         {rep?.name ?? "Unknown rep"}
                         {client.state ? ` · ${stateName(client.state)}` : ""}
-                        {client.insurer ? ` · ${insurerName(client.insurer)}` : ""}
+                        {` · ${clientInsurerLabel(client)}`}
                         {` · ${progress.filled} of ${progress.total}`}
                       </span>
                     </button>

@@ -26,6 +26,8 @@ export interface Client {
   lifeContingent: boolean;
   /** Optional IPA Invoice and W9. Required states show those pieces even when this is false. */
   ipa: boolean;
+  /** LA abuse file. No insurer, plus Point Allocation and First Payment Breakdown. Missing means false. */
+  laAbuse: boolean;
   links: Record<string, LinkRecord>;
   createdAt: string;
   updatedAt: string;
