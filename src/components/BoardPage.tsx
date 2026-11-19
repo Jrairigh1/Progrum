@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { insurerOptions, ipaRequired, stateName, stateOptions } from "../config/catalog";
-import { corePieceCount, IPA_PIECE_IDS, LIFE_PIECE_IDS } from "../config/pieces";
+import { IPA_PIECE_IDS, LIFE_PIECE_IDS, puzzleSlots } from "../config/pieces";
 import { progressFor } from "../lib/clients";
 import { linkStamp } from "../lib/links";
 import { repHref } from "../lib/routing";
@@ -12,7 +12,7 @@ import { ConfirmDialog, LinkDialog, MoveDialog, NameDialog } from "./dialogs";
 import { Guidance } from "./Guidance";
 import { ExtraStrip, PuzzleBoard, safeHref } from "./Puzzle";
 import { Crumbs, Meter } from "./ui";
-import type { DealType, PieceDef } from "../types";
+import type { PieceDef } from "../types";
 
 export function BoardPage({ clientId }: { clientId: string }) {
   const store = useStore();
@@ -47,14 +47,16 @@ export function BoardPage({ clientId }: { clientId: string }) {
   }
 
   const progress = progressFor(client);
-  const core = progress.pieces.filter((piece) => piece.group === "core").slice(0, corePieceCount());
+  const core = puzzleSlots(progress.pieces);
+  const standardCount = core.filter((piece) => piece).length;
+  const spia = client.dealType === "spia";
   const extras = progress.pieces.filter((piece) => piece.group === "extra");
   const lifeIds = new Set<string>(LIFE_PIECE_IDS);
   const ipaIds = new Set<string>(IPA_PIECE_IDS);
   const lifePieces = extras.filter((piece) => lifeIds.has(piece.id));
   const ipaPieces = extras.filter((piece) => ipaIds.has(piece.id));
   const statePieces = extras.filter((piece) => !lifeIds.has(piece.id) && !ipaIds.has(piece.id));
-  const ipaForced = ipaRequired(client.state);
+  const ipaForced = !spia && ipaRequired(client.state);
   const fasanoHref = safeHref(lifePieces.find((piece) => piece.id === "fasano")?.formUrl);
   const done = progress.total > 0 && progress.missing.length === 0;
 
@@ -79,7 +81,8 @@ export function BoardPage({ clientId }: { clientId: string }) {
         <div>
           <h1>
             {client.name}
-            {(ipaForced || client.ipa) && <span className="ipa-badge">IPA</span>}
+            {spia && <span className="spia-badge">SPIA</span>}
+            {(ipaForced || (!spia && client.ipa)) && <span className="ipa-badge">IPA</span>}
             {client.lifeContingent && <span className="life-badge">Life contingent</span>}
           </h1>
           <p>
@@ -132,19 +135,9 @@ export function BoardPage({ clientId }: { clientId: string }) {
           <legend>Deal type</legend>
           <label className="checkline">
             <input
-              type="radio"
-              name={`deal-${client.id}`}
-              checked={client.dealType === "structured"}
-              onChange={() => store.updateClient(client.id, { dealType: "structured" satisfies DealType })}
-            />
-            Structured settlement
-          </label>
-          <label className="checkline">
-            <input
-              type="radio"
-              name={`deal-${client.id}`}
-              checked={client.dealType === "spia"}
-              onChange={() => store.updateClient(client.id, { dealType: "spia" })}
+              type="checkbox"
+              checked={spia}
+              onChange={(event) => store.updateClient(client.id, { dealType: event.target.checked ? "spia" : "structured" })}
             />
             SPIA
           </label>
@@ -159,14 +152,15 @@ export function BoardPage({ clientId }: { clientId: string }) {
           <label className="checkline">
             <input
               type="checkbox"
-              checked={ipaForced || client.ipa}
-              disabled={ipaForced}
+              checked={!spia && (ipaForced || client.ipa)}
+              disabled={spia || ipaForced}
               onChange={(event) => {
-                if (!ipaForced) store.updateClient(client.id, { ipa: event.target.checked });
+                if (!spia && !ipaForced) store.updateClient(client.id, { ipa: event.target.checked });
               }}
             />
             IPA
           </label>
+          {spia && <p className="hint ipa-note">IPA not needed for SPIA</p>}
           {ipaForced && <p className="hint ipa-note">IPA required in {stateName(client.state)}</p>}
         </fieldset>
       </form>
@@ -182,7 +176,7 @@ export function BoardPage({ clientId }: { clientId: string }) {
               </p>
               {extras.length > 0 && (
                 <p className="hint">
-                  Standard {corePieceCount()}, plus {extras.length} more for this file.
+                  Standard {standardCount}, plus {extras.length} more for this file.
                 </p>
               )}
               <Meter filled={progress.filled} total={progress.total} />

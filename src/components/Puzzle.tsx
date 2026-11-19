@@ -18,7 +18,15 @@ interface BoardProps {
 const viewW = BOARD_W + STROKE_PAD * 2;
 const viewH = BOARD_H + STROKE_PAD * 2;
 
-export function PuzzleBoard({ pieces, links, complete, onEdit, onClear, onDropLink, onReject }: BoardProps) {
+export function PuzzleBoard({
+  pieces,
+  links,
+  complete,
+  onEdit,
+  onClear,
+  onDropLink,
+  onReject,
+}: Omit<BoardProps, "pieces"> & { pieces: (PieceDef | null)[] }) {
   const cells = Array.from({ length: COLS * 3 }, (_, index) => {
     const col = index % COLS;
     const row = Math.floor(index / COLS);
@@ -87,13 +95,15 @@ export function PuzzleBoard({ pieces, links, complete, onEdit, onClear, onDropLi
                 onDropLink={onDropLink}
                 onReject={onReject}
               />
-            ) : (
+            ) : cell.piece === undefined ? (
               <div key="seal" className="seal" aria-hidden="true">
                 <div className="seal-ring">
                   <strong>CBC</strong>
                   <span>Settlement Funding</span>
                 </div>
               </div>
+            ) : (
+              <div key={`open-${cell.index}`} className="cell" aria-hidden="true" />
             ),
           )}
         </div>

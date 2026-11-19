@@ -58,14 +58,14 @@ export function ClientsPage({ repId }: { repId: string }) {
                   <div>
                     <h2>
                       {client.name}
-                      {(ipaRequired(client.state) || client.ipa) && <span className="ipa-badge">IPA</span>}
+                      {client.dealType === "spia" && <span className="spia-badge">SPIA</span>}
+                      {client.dealType !== "spia" && (ipaRequired(client.state) || client.ipa) && <span className="ipa-badge">IPA</span>}
                       {client.lifeContingent && <span className="life-badge">Life contingent</span>}
                     </h2>
                     <p className="quiet">
                       {client.state ? stateName(client.state) : "No state"}
                       {" · "}
                       {client.insurer ? insurerName(client.insurer) : "No insurer"}
-                      {client.dealType === "spia" ? " · SPIA" : ""}
                     </p>
                   </div>
                   <div className="row-progress">

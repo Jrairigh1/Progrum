@@ -209,7 +209,10 @@ export const LIFE_PIECE_IDS = ["life-affidavit", "two-person-notifier", "fasano"
 
 export const IPA_PIECE_IDS = ["ipa-invoice", "ipa-w9"] as const;
 
+const SPIA_SKIPPED = new Set(["hold-time", "docusign-hold"]);
+
 function ipaApplies(ctx: PieceContext): boolean {
+  if (ctx.dealType === "spia") return false;
   return ipaRequired(ctx.state) || ctx.ipa === true;
 }
 
@@ -243,7 +246,7 @@ function holdBadge(ctx: PieceContext): string | undefined {
 
 export function piecesFor(profile: PieceProfile): PieceDef[] {
   const ctx = contextFor(profile);
-  const core: PieceDef[] = CORE_PIECES.map((piece) => ({
+  const core: PieceDef[] = CORE_PIECES.filter((piece) => ctx.dealType !== "spia" || !SPIA_SKIPPED.has(piece.id)).map((piece) => ({
     ...piece,
     group: "core",
     badge: piece.id === "hold-time" ? holdBadge(ctx) : undefined,
@@ -263,4 +266,10 @@ export function piecesFor(profile: PieceProfile): PieceDef[] {
 
 export function corePieceCount(): number {
   return CORE_PIECES.length;
+}
+
+/** Core puzzle cells in their fixed places. A SPIA file leaves Hold Time and its DocuSign summary empty. */
+export function puzzleSlots(pieces: PieceDef[]): (PieceDef | null)[] {
+  const core = new Map(pieces.filter((piece) => piece.group === "core").map((piece) => [piece.id, piece]));
+  return CORE_PIECES.map((piece) => core.get(piece.id) ?? null);
 }
