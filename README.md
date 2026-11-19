@@ -13,7 +13,7 @@ This site is published on public GitHub Pages. There is no login. Anyone with th
 - Open uses a new tab with `rel="noopener noreferrer"`. Whether the document opens still depends on the shared drive's own permissions.
 - There is no analytics and no font host. The Firebase SDK is bundled. The page may connect only to this site and to Firestore (`firestore.googleapis.com`, and `firebaseinstallations.googleapis.com` if the SDK asks for an installation id).
 - An optional name in the header is saved in this browser only and stamped on edits. It is not an account.
-- Export downloads a JSON backup. Import replaces the shared boards with that file. **Import local boards** copies a previous browser-only copy up once.
+- Export downloads a JSON backup. Import replaces the shared boards with that file. **Import local boards** copies a previous browser-only copy up once. Those three actions are under **Admin** in the header.
 - Delete a client or a rep to remove them for everyone. A confirmation is required. Files on the shared drive are not touched.
 - Do not commit client names, backup files, or filled documents. `.gitignore` blocks common document types (pdf, jpg, png, heic, docx, and others) outside the app's own asset folders, and it ignores `progrum-backup-*.json`. The blank advance letter in `public/templates` is the exception: it contains no client data.
 - **Advance document**, **Life Affidavit**, and **2 Person Notifier** build letters in this browser and download them. The files, questionnaire answers, and contact details are not saved to Firestore, local storage, or the shared boards.

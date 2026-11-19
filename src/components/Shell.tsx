@@ -14,7 +14,24 @@ export function Shell({ children }: { children: ReactNode }) {
   const [pending, setPending] = useState<{ reps: number; clients: number; note: string; state: ReturnType<typeof parseBackup> & { ok: true } } | null>(null);
   const [importLocal, setImportLocal] = useState(false);
   const [yourName, setYourName] = useState(getYourName);
+  const [adminOpen, setAdminOpen] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const adminRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!adminOpen) return;
+    function onPointer(event: PointerEvent) {
+      if (!adminRef.current?.contains(event.target as Node)) setAdminOpen(false);
+    }
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") setAdminOpen(false);
+    }
+    window.addEventListener("pointerdown", onPointer);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("pointerdown", onPointer);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [adminOpen]);
   useEffect(() => {
     const stopNavigation = (event: DragEvent) => {
       event.preventDefault();
@@ -135,17 +152,60 @@ export function Shell({ children }: { children: ReactNode }) {
             />
           </label>
           <span className="privacy-chip">Shared with anyone who has this link</span>
-          {store.localBoardCount > 0 && (
-            <button type="button" className="btn ghost light" onClick={() => setImportLocal(true)}>
-              Import local boards
+          <div className="admin-menu" ref={adminRef}>
+            <button
+              type="button"
+              className="admin-toggle"
+              aria-expanded={adminOpen}
+              aria-haspopup="menu"
+              onClick={() => setAdminOpen((open) => !open)}
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  fill="currentColor"
+                  d="M19.14 12.94a7.43 7.43 0 0 0 .05-.94 7.43 7.43 0 0 0-.05-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.28 7.28 0 0 0-1.63-.94l-.36-2.54a.5.5 0 0 0-.5-.42h-3.84a.5.5 0 0 0-.5.42l-.36 2.54c-.58.23-1.12.54-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.71 8.84a.5.5 0 0 0 .12.64l2.03 1.58a7.43 7.43 0 0 0-.05.94c0 .32.02.63.05.94L2.83 14.52a.5.5 0 0 0-.12.64l1.92 3.32c.13.23.4.32.64.22l2.39-.96c.5.4 1.05.72 1.63.94l.36 2.54c.05.24.26.42.5.42h3.84c.24 0 .45-.18.5-.42l.36-2.54c.58-.22 1.12-.54 1.63-.94l2.39.96c.24.1.51 0 .64-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58zM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5z"
+                />
+              </svg>
+              Admin
             </button>
-          )}
-          <button type="button" className="btn ghost light" onClick={() => downloadBackup({ version: 1, reps: store.reps, clients: store.clients })}>
-            Export
-          </button>
-          <button type="button" className="btn ghost light" onClick={() => fileRef.current?.click()}>
-            Import
-          </button>
+            {adminOpen && (
+              <div className="admin-panel" role="menu">
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setAdminOpen(false);
+                    setImportLocal(true);
+                  }}
+                >
+                  <strong>Import local boards</strong>
+                  <span>Copy boards saved in this browser onto the shared list.</span>
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setAdminOpen(false);
+                    downloadBackup({ version: 1, reps: store.reps, clients: store.clients });
+                  }}
+                >
+                  <strong>Export</strong>
+                  <span>Download a JSON backup of the shared boards.</span>
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setAdminOpen(false);
+                    fileRef.current?.click();
+                  }}
+                >
+                  <strong>Import</strong>
+                  <span>Replace the shared boards with a JSON backup from this computer.</span>
+                </button>
+              </div>
+            )}
+          </div>
           <input
             ref={fileRef}
             className="sr"
