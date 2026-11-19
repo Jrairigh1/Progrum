@@ -5,6 +5,7 @@ import { idbGet } from "./lib/db";
 import {
   explainFirestoreError,
   listenBoards,
+  migrateFundedFiles,
   removeClient,
   removeLink,
   removeRep,
@@ -50,6 +51,8 @@ interface StoreValue {
   deleteClient: (id: string) => void;
   setLink: (clientId: string, pieceId: string, url: string, customLabel: string) => string | null;
   clearLink: (clientId: string, pieceId: string) => void;
+  markFunded: (id: string) => void;
+  unfund: (id: string) => void;
   replaceAll: (state: PersistedState) => void;
 }
 
@@ -65,6 +68,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const repsRef = useRef<Rep[]>([]);
   const clientsRef = useRef<Client[]>([]);
   const seen = useRef({ reps: false, clients: false });
+  const migrated = useRef(false);
 
   function publish(nextReps: Rep[], nextClients: Client[]) {
     repsRef.current = nextReps;
@@ -107,6 +111,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       stop();
     };
   }, []);
+
+  useEffect(() => {
+    if (!ready || migrated.current) return;
+    migrated.current = true;
+    void migrateFundedFiles(repsRef.current, clientsRef.current).catch((error: unknown) => {
+      setFatal(explainFirestoreError(error));
+    });
+  }, [ready]);
 
   useEffect(() => {
     if (!toast) return;
@@ -185,6 +197,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           lifeContingent: input.lifeContingent === true,
           ipa: input.ipa === true,
           laAbuse: input.laAbuse === true,
+          funded: false,
           insurer: input.laAbuse === true || !INSURERS[input.insurer] ? "" : input.insurer,
           links: {},
           createdAt: now,
@@ -267,6 +280,22 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           clientsRef.current.map((client) => (client.id === clientId ? { ...client, links, updatedAt: now } : client)),
         );
         void removeLink(clientId, pieceId, now).catch(fail);
+      },
+      markFunded: (id) => {
+        const current = clientsRef.current.find((client) => client.id === id);
+        if (!current || current.funded) return;
+        const now = new Date().toISOString();
+        const next = { ...current, funded: true, fundedAt: now, updatedAt: now };
+        publish(repsRef.current, clientsRef.current.map((client) => (client.id === id ? next : client)));
+        void saveClient(next).catch(fail);
+      },
+      unfund: (id) => {
+        const current = clientsRef.current.find((client) => client.id === id);
+        if (!current?.funded) return;
+        const now = new Date().toISOString();
+        const next = { ...current, funded: false, fundedAt: undefined, updatedAt: now };
+        publish(repsRef.current, clientsRef.current.map((client) => (client.id === id ? next : client)));
+        void saveClient(next).catch(fail);
       },
       replaceAll: (next) => {
         const previous = snapshot();

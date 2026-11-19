@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { compareNames, sumProgress } from "../lib/clients";
-import { repHref } from "../lib/routing";
+import { fundedHref, repHref } from "../lib/routing";
 import { useStore } from "../store";
 import { AdvanceDialog, QuickLinks } from "./AdvanceDoc";
 import { ConfirmDialog, NameDialog } from "./dialogs";
@@ -37,7 +37,7 @@ export function RepsPage() {
       ) : (
         <div className="card-grid">
           {reps.map((rep) => {
-            const clients = store.clients.filter((client) => client.repId === rep.id);
+            const clients = store.clients.filter((client) => client.repId === rep.id && !client.funded);
             const progress = sumProgress(clients);
             const ratio = progress.total === 0 ? 0 : progress.filled / progress.total;
             return (
@@ -68,6 +68,9 @@ export function RepsPage() {
           })}
         </div>
       )}
+      <p className="funded-link">
+        <a href={fundedHref()}>Funded ({store.clients.filter((client) => client.funded).length})</a>
+      </p>
       </div>
       <QuickLinks onAdvance={() => setAdvance(true)} />
       <AdvanceDialog open={advance} onClose={() => setAdvance(false)} />

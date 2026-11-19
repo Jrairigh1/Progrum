@@ -123,6 +123,8 @@ function sanitizeClient(raw: unknown): { client: Client; skippedLinks: number } 
       lifeContingent: raw.lifeContingent === true,
       ipa: raw.ipa === true,
       laAbuse,
+      funded: raw.funded === true,
+      fundedAt: raw.funded === true && typeof raw.fundedAt === "string" ? raw.fundedAt : undefined,
       links: linksResult.links,
       createdAt: typeof raw.createdAt === "string" ? raw.createdAt : now,
       updatedAt: typeof raw.updatedAt === "string" ? raw.updatedAt : now,

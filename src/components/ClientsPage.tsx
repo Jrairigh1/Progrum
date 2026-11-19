@@ -26,7 +26,8 @@ export function ClientsPage({ repId }: { repId: string }) {
       </section>
     );
   }
-  const clients = store.clients.filter((client) => client.repId === rep.id).sort((a, b) => compareNames(a.name, b.name));
+  const clients = store.clients.filter((client) => client.repId === rep.id && !client.funded).sort((a, b) => compareNames(a.name, b.name));
+  const fundedHere = store.clients.some((client) => client.repId === rep.id && client.funded);
   const renaming = clients.find((client) => client.id === renameId) ?? null;
   const moving = clients.find((client) => client.id === moveId) ?? null;
   const deleting = clients.find((client) => client.id === deleteId) ?? null;
@@ -45,8 +46,17 @@ export function ClientsPage({ repId }: { repId: string }) {
       </div>
       {clients.length === 0 ? (
         <div className="empty">
-          <h2>No clients yet</h2>
-          <p>Add the first file for {rep.name}.</p>
+          {fundedHere ? (
+            <>
+              <h2>No active clients</h2>
+              <p>Funded boards for {rep.name} are in the Funded bin.</p>
+            </>
+          ) : (
+            <>
+              <h2>No clients yet</h2>
+              <p>Add the first file for {rep.name}.</p>
+            </>
+          )}
         </div>
       ) : (
         <div className="list">

@@ -28,6 +28,9 @@ export interface Client {
   ipa: boolean;
   /** LA abuse file. No insurer, plus Point Allocation and First Payment Breakdown. Missing means false. */
   laAbuse: boolean;
+  /** Funded deals leave the rep's active list and stay on the same rep. Missing means false. */
+  funded: boolean;
+  fundedAt?: string;
   links: Record<string, LinkRecord>;
   createdAt: string;
   updatedAt: string;
