@@ -83,12 +83,16 @@ export function guidanceFor(profile: { state: string; insurer: string; dealType:
     stateRows.push({
       label: "Hold time",
       value: holdText(state.holdTime, spia),
-      detail: "Days the state gives the client to be sure about the transfer. The Hold Time piece is still part of the standard 11.",
+      detail: spia
+        ? "A SPIA file does not require Hold Time or the DocuSign summary for Hold Time."
+        : "Days the state gives the client to be sure about the transfer. The Hold Time piece is still part of the standard 11.",
     });
     stateRows.push({
       label: "Independent professional advice",
-      value: ipaRequired(profile.state) ? "Required" : profile.ipa ? "Added for this file" : "Optional",
-      detail: "IPA Invoice and IPA W9. Required states always include them. Every other state can add them from the board. CBCisstant prices required IPA at $1,500 on a structured settlement.",
+      value: spia ? "Not needed for a SPIA" : ipaRequired(profile.state) ? "Required" : profile.ipa ? "Added for this file" : "Optional",
+      detail: spia
+        ? "IPA Invoice and IPA W9 are not part of a SPIA file."
+        : "IPA Invoice and IPA W9. Required states always include them. Every other state can add them from the board. CBCisstant prices required IPA at $1,500 on a structured settlement.",
     });
     stateRows.push({
       label: "Affidavit or declaration",

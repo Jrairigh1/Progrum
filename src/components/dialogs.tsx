@@ -193,22 +193,15 @@ export function ClientDialog({
             </option>
           ))}
         </select>
-        <fieldset>
-          <legend>Deal type</legend>
-          <label className="checkline">
-            <input
-              type="radio"
-              name="deal"
-              checked={dealType === "structured"}
-              onChange={() => setDealType("structured")}
-            />
-            Structured settlement
-          </label>
-          <label className="checkline">
-            <input type="radio" name="deal" checked={dealType === "spia"} onChange={() => setDealType("spia")} />
-            SPIA
-          </label>
-        </fieldset>
+        <label className="checkline">
+          <input
+            type="checkbox"
+            checked={dealType === "spia"}
+            onChange={(event) => setDealType(event.target.checked ? "spia" : "structured")}
+          />
+          SPIA
+        </label>
+        <p className="hint">Single premium immediate annuity. Hold Time, its DocuSign summary, and IPA are not required.</p>
         <label className="checkline">
           <input type="checkbox" checked={lifeContingent} onChange={(event) => setLifeContingent(event.target.checked)} />
           Life contingent
@@ -217,16 +210,18 @@ export function ClientDialog({
         <label className="checkline">
           <input
             type="checkbox"
-            checked={ipaRequired(state) || ipa}
-            disabled={ipaRequired(state)}
+            checked={dealType !== "spia" && (ipaRequired(state) || ipa)}
+            disabled={dealType === "spia" || ipaRequired(state)}
             onChange={(event) => setIpa(event.target.checked)}
           />
           IPA
         </label>
         <p className="hint">
-          {ipaRequired(state)
-            ? `IPA required in ${stateName(state)}. Adds IPA Invoice and IPA W9.`
-            : "Adds IPA Invoice and IPA W9. Optional unless the state requires it."}
+          {dealType === "spia"
+            ? "IPA not needed for SPIA"
+            : ipaRequired(state)
+              ? `IPA required in ${stateName(state)}. Adds IPA Invoice and IPA W9.`
+              : "Adds IPA Invoice and IPA W9. Optional unless the state requires it."}
         </p>
         {error && <p className="form-error">{error}</p>}
         <div className="modal-actions">

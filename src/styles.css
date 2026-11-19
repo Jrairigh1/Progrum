@@ -182,6 +182,7 @@ img { max-width: 100%; }
 
 main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 48px; }
 .page-head { display: flex; justify-content: space-between; gap: 16px; align-items: flex-end; margin-bottom: 22px; }
+.spia-badge,
 .ipa-badge,
 .life-badge {
   display: inline-block;
@@ -198,6 +199,7 @@ main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 48
   vertical-align: middle;
   white-space: nowrap;
 }
+.spia-badge { background: #e7eef8; }
 .ipa-badge { background: #f8f1e2; }
 .ipa-note { flex-basis: 100%; margin: 0; }
 .form-ref a { color: var(--navy-mid); }
