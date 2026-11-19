@@ -128,6 +128,7 @@ export function Shell({ children }: { children: ReactNode }) {
                         {rep?.name ?? "Unknown rep"}
                         {client.state ? ` · ${stateName(client.state)}` : ""}
                         {` · ${clientInsurerLabel(client)}`}
+                        {client.funded ? " · Funded" : ""}
                         {` · ${progress.filled} of ${progress.total}`}
                       </span>
                     </button>

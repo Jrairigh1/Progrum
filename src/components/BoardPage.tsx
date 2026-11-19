@@ -23,6 +23,7 @@ export function BoardPage({ clientId }: { clientId: string }) {
   const [renaming, setRenaming] = useState(false);
   const [moving, setMoving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [unfunding, setUnfunding] = useState(false);
   const [advance, setAdvance] = useState(false);
   const [lifeDoc, setLifeDoc] = useState(false);
   const [notifierDoc, setNotifierDoc] = useState(false);
@@ -102,6 +103,15 @@ export function BoardPage({ clientId }: { clientId: string }) {
           <button type="button" className="btn ghost" onClick={() => setMoving(true)}>
             Move
           </button>
+          {client.funded ? (
+            <button type="button" className="btn ghost" onClick={() => setUnfunding(true)}>
+              Unfund
+            </button>
+          ) : (
+            <button type="button" className="btn ghost" onClick={() => store.markFunded(client.id)}>
+              Mark as funded
+            </button>
+          )}
           <button type="button" className="btn danger" onClick={() => setDeleting(true)}>
             Delete
           </button>
@@ -401,6 +411,18 @@ export function BoardPage({ clientId }: { clientId: string }) {
           store.moveClient(client.id, repId);
           store.notify("Client moved.");
           setMoving(false);
+        }}
+      />
+      <ConfirmDialog
+        open={unfunding}
+        title="Return this client to the active list?"
+        body="The board stays with the same rep and keeps its links. It shows in that rep's client list again."
+        confirmLabel="Unfund"
+        onClose={() => setUnfunding(false)}
+        onConfirm={() => {
+          store.unfund(client.id);
+          store.notify("Client returned to the active list.");
+          setUnfunding(false);
         }}
       />
       <ConfirmDialog

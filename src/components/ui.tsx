@@ -1,5 +1,5 @@
 import type { Client, Rep } from "../types";
-import { clientHref, repHref } from "../lib/routing";
+import { clientHref, fundedHref, repHref } from "../lib/routing";
 
 export function Meter({ filled, total }: { filled: number; total: number }) {
   const pct = total === 0 ? 0 : Math.max(0, Math.min(100, (filled / total) * 100));
@@ -34,11 +34,18 @@ export function Crumbs({ rep, client }: { rep?: Rep | null; client?: Client | nu
   return (
     <nav className="crumbs" aria-label="Breadcrumb">
       <a href="#/">Reps</a>
-      {rep && (
+      {client?.funded ? (
         <>
           <span aria-hidden="true">/</span>
-          {client ? <a href={repHref(rep.id)}>{rep.name}</a> : <span aria-current="page">{rep.name}</span>}
+          <a href={fundedHref()}>Funded</a>
         </>
+      ) : (
+        rep && (
+          <>
+            <span aria-hidden="true">/</span>
+            {client ? <a href={repHref(rep.id)}>{rep.name}</a> : <span aria-current="page">{rep.name}</span>}
+          </>
+        )
       )}
       {client && (
         <>
