@@ -157,6 +157,47 @@ img { max-width: 100%; }
   font-size: 0.78rem;
   letter-spacing: 0.02em;
 }
+.admin-menu { position: relative; }
+.admin-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  color: #d9c7a2;
+  border: 1px solid rgba(217, 199, 162, 0.35);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 0.82rem;
+}
+.admin-toggle svg { width: 14px; height: 14px; display: block; }
+.admin-panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  width: min(320px, 78vw);
+  margin: 0;
+  padding: 6px;
+  background: var(--paper);
+  color: var(--ink);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  z-index: 40;
+}
+.admin-panel button {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+.admin-panel button:hover, .admin-panel button:focus-visible { background: #f6f0e4; }
+.admin-panel strong { color: var(--navy); font-size: 0.92rem; }
+.admin-panel span { color: var(--muted); font-size: 0.8rem; line-height: 1.35; }
 
 .btn, .card-actions button, .cell-actions a, .cell-actions button, .doc-list .btn {
   border-radius: 999px;
