@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { BoardPage } from "./components/BoardPage";
 import { ClientsPage } from "./components/ClientsPage";
+import { FundedPage } from "./components/FundedPage";
 import { RepsPage } from "./components/RepsPage";
 import { Shell } from "./components/Shell";
 import { parseHash, type Route } from "./lib/routing";
@@ -22,6 +23,7 @@ export function App() {
 
   useEffect(() => {
     let title = "Progrum · CBC Settlement Funding";
+    if (route.name === "funded") title = "Funded · Progrum";
     if (route.name === "rep") {
       const rep = store.reps.find((item) => item.id === route.repId);
       if (rep) title = `${rep.name} · Progrum`;
@@ -54,6 +56,7 @@ export function App() {
     <Shell>
       {store.fatal && <p className="config-banner">{store.fatal}</p>}
       {route.name === "reps" && <RepsPage />}
+      {route.name === "funded" && <FundedPage />}
       {route.name === "rep" && <ClientsPage repId={route.repId} />}
       {route.name === "client" && <BoardPage clientId={route.clientId} />}
     </Shell>

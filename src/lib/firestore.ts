@@ -78,6 +78,8 @@ export function listenBoards(
               lifeContingent: data.lifeContingent === true,
               ipa: data.ipa === true,
               laAbuse: data.laAbuse === true,
+              funded: data.funded === true,
+              fundedAt: data.funded === true ? stringField(data.fundedAt) || undefined : undefined,
               links: readLinks(data.links),
               createdAt: stringField(data.createdAt) || now,
               updatedAt: stringField(data.updatedAt) || now,
@@ -105,6 +107,36 @@ export async function seedJamesIfEmpty(): Promise<void> {
     }
     tx.set(metaRef, { seeded: true }, { merge: true });
   });
+}
+
+/**
+ * Move boards parked on a rep named "Funded Files" onto James and mark them funded.
+ * Deletes only that empty rep. Client boards are never deleted. Safe to run again.
+ */
+export async function migrateFundedFiles(reps: Rep[], clients: Client[]): Promise<number | null> {
+  const fundedReps = reps.filter((rep) => rep.name.trim().toLowerCase() === "funded files");
+  if (fundedReps.length === 0) return null;
+  const james =
+    reps.find((rep) => rep.id === "james" && rep.name.trim().toLowerCase() === "james") ??
+    reps.find((rep) => rep.name.trim().toLowerCase() === "james");
+  if (!james || fundedReps.some((rep) => rep.id === james.id)) return null;
+  const fundedIds = new Set(fundedReps.map((rep) => rep.id));
+  const moving = clients.filter((client) => fundedIds.has(client.repId));
+  const now = new Date().toISOString();
+  for (const client of moving) {
+    await saveClient({
+      ...client,
+      repId: james.id,
+      funded: true,
+      fundedAt: client.fundedAt || now,
+      updatedAt: now,
+    });
+  }
+  for (const rep of fundedReps) {
+    await removeRep(rep.id, []);
+  }
+  await setDoc(metaRef, { fundedFilesMoved: moving.length }, { merge: true });
+  return moving.length;
 }
 
 export async function saveRep(rep: Rep): Promise<void> {
@@ -174,7 +206,7 @@ export async function sharedBoardsExist(): Promise<boolean> {
 }
 
 function clientPayload(client: Client): Record<string, unknown> {
-  return {
+  const payload: Record<string, unknown> = {
     name: client.name,
     repId: client.repId,
     state: client.state,
@@ -183,10 +215,13 @@ function clientPayload(client: Client): Record<string, unknown> {
     lifeContingent: client.lifeContingent === true,
     ipa: client.ipa === true,
     laAbuse: client.laAbuse === true,
+    funded: client.funded === true,
     createdAt: client.createdAt,
     updatedAt: client.updatedAt,
     links: Object.fromEntries(Object.entries(client.links).map(([id, link]) => [id, linkPayload(link)])),
   };
+  if (client.funded && client.fundedAt) payload.fundedAt = client.fundedAt;
+  return payload;
 }
 
 function linkPayload(link: LinkRecord): Record<string, string | boolean> {
