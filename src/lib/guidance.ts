@@ -39,7 +39,7 @@ export interface GuidanceModel {
   costs: GuidanceCost | null;
 }
 
-export function guidanceFor(profile: { state: string; insurer: string; dealType: DealType; ipa?: boolean }): GuidanceModel {
+export function guidanceFor(profile: { state: string; insurer: string; dealType: DealType; ipa?: boolean; laAbuse?: boolean }): GuidanceModel {
   const state = STATES[profile.state];
   const insurer = INSURERS[profile.insurer];
   const spia = profile.dealType === "spia";
@@ -50,6 +50,14 @@ export function guidanceFor(profile: { state: string; insurer: string; dealType:
       tone: "info",
       title: "SPIA file",
       body: "No court process, and no legal or administrative fees. Only the paperwork the insurer asks for. There is no rate cap, but the deal must not be egregious. Court extras such as IPA, affidavits, and declarations are left off this board.",
+    });
+  }
+
+  if (profile.laAbuse) {
+    alerts.push({
+      tone: "info",
+      title: "LA abuse file",
+      body: "No insurance company for LA abuse cases.",
     });
   }
 

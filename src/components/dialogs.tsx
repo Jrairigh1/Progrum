@@ -141,7 +141,7 @@ export function ClientDialog({
 }: {
   open: boolean;
   onClose: () => void;
-  onCreate: (input: { name: string; state: string; insurer: string; dealType: DealType; lifeContingent: boolean; ipa: boolean }) => string | null;
+  onCreate: (input: { name: string; state: string; insurer: string; dealType: DealType; lifeContingent: boolean; ipa: boolean; laAbuse: boolean }) => string | null;
 }) {
   const [name, setName] = useState("");
   const [state, setState] = useState("");
@@ -149,6 +149,7 @@ export function ClientDialog({
   const [dealType, setDealType] = useState<DealType>("structured");
   const [lifeContingent, setLifeContingent] = useState(false);
   const [ipa, setIpa] = useState(false);
+  const [laAbuse, setLaAbuse] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const nameId = useId();
   useEffect(() => {
@@ -159,13 +160,14 @@ export function ClientDialog({
       setDealType("structured");
       setLifeContingent(false);
       setIpa(false);
+      setLaAbuse(false);
       setError(null);
     }
   }, [open]);
 
   function submit(event: FormEvent) {
     event.preventDefault();
-    const result = onCreate({ name, state, insurer, dealType, lifeContingent, ipa });
+    const result = onCreate({ name, state, insurer: laAbuse ? "" : insurer, dealType, lifeContingent, ipa, laAbuse });
     if (result) setError(result);
     else onClose();
   }
@@ -185,14 +187,33 @@ export function ClientDialog({
           ))}
         </select>
         <label htmlFor={`${nameId}-insurer`}>Insurance company</label>
-        <select id={`${nameId}-insurer`} value={insurer} onChange={(event) => setInsurer(event.target.value)}>
-          <option value="">Select later</option>
+        <select
+          id={`${nameId}-insurer`}
+          value={laAbuse ? "" : insurer}
+          disabled={laAbuse}
+          onChange={(event) => setInsurer(event.target.value)}
+        >
+          <option value="">{laAbuse ? "LA abuse" : "Select later"}</option>
           {insurerOptions().map((option) => (
             <option key={option.code} value={option.code}>
               {option.name}
             </option>
           ))}
         </select>
+        {laAbuse && <p className="hint">No insurance company for LA abuse cases</p>}
+        <label className="checkline">
+          <input
+            type="checkbox"
+            checked={laAbuse}
+            onChange={(event) => {
+              const next = event.target.checked;
+              setLaAbuse(next);
+              if (next) setInsurer("");
+            }}
+          />
+          LA abuse
+        </label>
+        <p className="hint">Adds Point Allocation and First Payment Breakdown.</p>
         <label className="checkline">
           <input
             type="checkbox"

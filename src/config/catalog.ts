@@ -923,6 +923,27 @@ export const QUICK_LINKS = [
  */
 export const WIRE_FEE: number | null = null;
 
+/**
+ * Extra documents for an LA abuse file. These are link-only pieces, like
+ * every other document on a board. Edit the names here.
+ */
+export const LA_ABUSE_PIECES = [
+  {
+    id: "point-allocation",
+    label: "Point Allocation",
+    short: "Point Allocation",
+    hint: "Point allocation for an LA abuse file.",
+  },
+  {
+    id: "first-payment-breakdown",
+    label: "First Payment Breakdown",
+    short: "First Payment Breakdown",
+    hint: "First payment breakdown for an LA abuse file.",
+  },
+] as const;
+
+export const LA_ABUSE_PIECE_IDS = LA_ABUSE_PIECES.map((piece) => piece.id);
+
 /** Berkshire may appear at the hearing in these states. */
 export const BIFCO_STATES = ["CA","AZ","FL","MS","TX","IN","IL","PA","NY"];
 
@@ -940,6 +961,13 @@ export function stateName(code: string): string {
 
 export function insurerName(code: string): string {
   return INSURERS[code]?.name ?? code;
+}
+
+/** Label used in client lists. LA abuse files have no insurance company. */
+export function clientInsurerLabel(client: { insurer: string; laAbuse?: boolean }): string {
+  if (client.laAbuse) return "LA abuse";
+  if (!client.insurer) return "No insurer";
+  return insurerName(client.insurer);
 }
 
 export function underwriterFor(stateCode: string): string {

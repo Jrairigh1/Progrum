@@ -9,6 +9,7 @@ import {
   AUTHORIZATION_FORM,
   FASANO_FORM,
   INSURERS,
+  LA_ABUSE_PIECES,
   STATES,
   ipaRequired,
   type InsurerRule,
@@ -58,6 +59,7 @@ export interface PieceProfile {
   dealType: DealType;
   lifeContingent?: boolean;
   ipa?: boolean;
+  laAbuse?: boolean;
 }
 
 interface PieceContext extends PieceProfile {
@@ -203,6 +205,14 @@ export const EXTRA_PIECE_RULES: ExtraRule[] = [
     when: (ctx) => ctx.lifeContingent === true,
     badge: () => "Life contingent",
   },
+  ...LA_ABUSE_PIECES.map((piece) => ({
+    id: piece.id,
+    label: piece.label,
+    short: piece.short,
+    hint: piece.hint,
+    when: (ctx: PieceContext) => ctx.laAbuse === true,
+    badge: () => "LA abuse",
+  })),
 ];
 
 export const LIFE_PIECE_IDS = ["life-affidavit", "two-person-notifier", "fasano", "docucert-fasano", "life-expectancy"] as const;

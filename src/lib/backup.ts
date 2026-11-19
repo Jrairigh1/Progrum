@@ -110,6 +110,7 @@ function sanitizeClient(raw: unknown): { client: Client; skippedLinks: number } 
   const state = typeof raw.state === "string" && STATES[raw.state] ? raw.state : "";
   const insurer = typeof raw.insurer === "string" && INSURERS[raw.insurer] ? raw.insurer : "";
   const dealType: DealType = raw.dealType === "spia" ? "spia" : "structured";
+  const laAbuse = raw.laAbuse === true;
   return {
     skippedLinks: linksResult.skipped,
     client: {
@@ -117,10 +118,11 @@ function sanitizeClient(raw: unknown): { client: Client; skippedLinks: number } 
       repId: raw.repId,
       name,
       state,
-      insurer,
+      insurer: laAbuse ? "" : insurer,
       dealType,
       lifeContingent: raw.lifeContingent === true,
       ipa: raw.ipa === true,
+      laAbuse,
       links: linksResult.links,
       createdAt: typeof raw.createdAt === "string" ? raw.createdAt : now,
       updatedAt: typeof raw.updatedAt === "string" ? raw.updatedAt : now,

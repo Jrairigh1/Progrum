@@ -1,4 +1,4 @@
-import { insurerName, stateName } from "../config/catalog";
+import { clientInsurerLabel, stateName } from "../config/catalog";
 import { piecesFor } from "../config/pieces";
 import type { Client, PieceDef, Rep } from "../types";
 
@@ -36,7 +36,14 @@ export function searchClients(query: string, clients: Client[], reps: Rep[]): Cl
   return clients
     .filter((client) => {
       const rep = reps.find((item) => item.id === client.repId);
-      const haystack = [client.name, rep?.name ?? "", stateName(client.state), insurerName(client.insurer), client.state]
+      const haystack = [
+        client.name,
+        rep?.name ?? "",
+        stateName(client.state),
+        clientInsurerLabel(client),
+        client.state,
+        client.laAbuse ? "LA abuse" : "",
+      ]
         .join(" ")
         .toLowerCase();
       return haystack.includes(needle);
