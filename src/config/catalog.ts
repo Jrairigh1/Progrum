@@ -896,6 +896,18 @@ export function stateFormsFor(code: string): StateForm[] {
   return STATE_FORMS[code] ?? [];
 }
 
+/** Extra link-only pieces for a state. Add another state here when it needs one. */
+export const STATE_EXTRA_PIECES: Record<string, { id: string; label: string; short: string; hint: string }[]> = {
+  CA: [
+    {
+      id: "docusign-cert-declaration",
+      label: "DocuSign Cert for Declaration",
+      short: "DocuSign Cert for Declaration",
+      hint: "DocuSign certificate of completion for the declaration.",
+    },
+  ],
+};
+
 
 /** Blank authorization-to-release form. */
 export const AUTHORIZATION_FORM = "https://cbcsettlementfundings-my.sharepoint.com/:w:/g/personal/jrairigh_cbcsettlementfunding_com/EcfbEWrE5uFNk7rQ_vbiyuEBPB2Tx14mp6nGhSZMUMKgjw?e=dZl12V";
