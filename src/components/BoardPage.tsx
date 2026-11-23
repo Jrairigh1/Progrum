@@ -132,27 +132,6 @@ export function BoardPage({ clientId }: { clientId: string }) {
 
       <form className="meta-form" onSubmit={(event) => event.preventDefault()}>
         <label>
-          Best contact number
-          <input
-            type="tel"
-            inputMode="tel"
-            autoComplete="tel"
-            placeholder="(555) 555-5555"
-            maxLength={40}
-            value={client.bestContactNumber}
-            onChange={(event) => store.updateClient(client.id, { bestContactNumber: formatContactNumber(event.target.value) })}
-          />
-        </label>
-        <label>
-          Time at address
-          <input
-            maxLength={80}
-            placeholder="3 years"
-            value={client.timeAtAddress}
-            onChange={(event) => store.updateClient(client.id, { timeAtAddress: event.target.value })}
-          />
-        </label>
-        <label>
           State
           <select value={client.state} onChange={(event) => store.updateClient(client.id, { state: event.target.value })}>
             <option value="">Select a state</option>
@@ -265,6 +244,30 @@ export function BoardPage({ clientId }: { clientId: string }) {
           </div>
 
           {done && <p className="complete-banner">All required links are in. The picture is complete.</p>}
+
+          <form className="board-contact" onSubmit={(event) => event.preventDefault()}>
+            <label>
+              Best contact number
+              <input
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel"
+                placeholder="(555) 555-5555"
+                maxLength={40}
+                value={client.bestContactNumber}
+                onChange={(event) => store.updateClient(client.id, { bestContactNumber: formatContactNumber(event.target.value) })}
+              />
+            </label>
+            <label>
+              Time at address
+              <input
+                maxLength={80}
+                placeholder="3 years"
+                value={client.timeAtAddress}
+                onChange={(event) => store.updateClient(client.id, { timeAtAddress: event.target.value })}
+              />
+            </label>
+          </form>
 
           <PuzzleBoard
             pieces={core}

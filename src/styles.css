@@ -322,6 +322,28 @@ main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 48
   align-items: start;
 }
 .status-count { font-family: var(--serif); font-size: 1.8rem; margin: 0 0 8px; color: var(--navy); }
+.board-contact {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+  margin: 0 0 14px;
+}
+.board-contact label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  font-size: 0.8rem;
+  color: var(--navy);
+}
+.board-contact input {
+  width: 100%;
+  border: 1px solid var(--line);
+  background: white;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 0.92rem;
+}
 .missing {
   list-style: none;
   padding: 0;
@@ -707,6 +729,11 @@ main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 48
     border: 0;
     padding: 0;
     background: rgba(4, 32, 71, 0.45);
+  }
+  .board-contact {
+    grid-template-columns: 1fr;
+    width: calc(100vw - 20px);
+    max-width: calc(100vw - 20px);
   }
   .doc-list { display: block; }
   .top { padding: 12px; }
