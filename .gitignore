@@ -38,6 +38,7 @@ progrum-backup-*.json
 *.key
 
 !public/templates/*.docx
+!public/forms/*.docx
 !public/**/*.png
 !public/**/*.jpg
 !public/**/*.jpeg
