@@ -32,6 +32,8 @@ export interface Client {
   estate: boolean;
   /** Power of attorney. Adds Proof of POA. Missing means false. */
   poa: boolean;
+  /** Lead paint file. Adds Proof of Education. Missing means false. */
+  leadPaint: boolean;
   /** Optional pieces marked not applicable, such as Will. Missing means none. */
   notApplicable: string[];
   /** Funded deals leave the rep's active list and stay on the same rep. Missing means false. */

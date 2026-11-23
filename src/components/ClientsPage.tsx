@@ -74,6 +74,7 @@ export function ClientsPage({ repId }: { repId: string }) {
                       {client.lifeContingent && <span className="life-badge">Life contingent</span>}
                       {client.estate && <span className="estate-badge">Estate</span>}
                       {client.poa && <span className="poa-badge">POA</span>}
+                      {client.leadPaint && <span className="lead-paint-badge">Lead Paint</span>}
                     </h2>
                     <p className="quiet">
                       {client.state ? stateName(client.state) : "No state"}

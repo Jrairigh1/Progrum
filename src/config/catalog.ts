@@ -1018,6 +1018,18 @@ export const POA_PIECES = [
 
 export const POA_PIECE_IDS = POA_PIECES.map((piece) => piece.id);
 
+/** Link-only proof of education for a lead paint file. Edit the name here. */
+export const LEAD_PAINT_PIECES = [
+  {
+    id: "proof-of-education",
+    label: "Proof of Education",
+    short: "Proof of Education",
+    hint: "Proof of education for a lead paint file.",
+  },
+] as const;
+
+export const LEAD_PAINT_PIECE_IDS = LEAD_PAINT_PIECES.map((piece) => piece.id);
+
 /** Piece ids that can be marked not applicable. */
 export function estateNotApplicable(ids: unknown): string[] {
   const allowed = new Set(ESTATE_PIECES.filter((piece) => piece.optional).map((piece) => piece.id));
@@ -1038,7 +1050,7 @@ export const IPA_FEE = 1500;
 
 /** Checkbox groups on the new-client form and the client board. Order is the order shown. */
 export interface ClientFlag {
-  id: "spia" | "la-abuse" | "life-contingent" | "ipa" | "estate" | "poa";
+  id: "spia" | "la-abuse" | "life-contingent" | "ipa" | "estate" | "poa" | "lead-paint";
   label: string;
   title?: string;
 }
@@ -1066,6 +1078,7 @@ export const CLIENT_FLAG_GROUPS: ClientFlagGroup[] = [
       { id: "ipa", label: "IPA" },
       { id: "estate", label: "Estate" },
       { id: "poa", label: "POA (Power of Attorney)", title: "POA (Power of Attorney)" },
+      { id: "lead-paint", label: "Lead Paint" },
     ],
   },
 ];

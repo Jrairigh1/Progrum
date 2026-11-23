@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import { CLIENT_FLAG_GROUPS, ESTATE_PIECE_IDS, insurerOptions, ipaRequired, LA_ABUSE_PIECE_IDS, POA_PIECE_IDS, stateName, stateOptions } from "../config/catalog";
+import { CLIENT_FLAG_GROUPS, ESTATE_PIECE_IDS, insurerOptions, ipaRequired, LA_ABUSE_PIECE_IDS, LEAD_PAINT_PIECE_IDS, POA_PIECE_IDS, stateName, stateOptions } from "../config/catalog";
 import type { ClientFlag } from "../config/catalog";
 import { IPA_PIECE_IDS, LIFE_PIECE_IDS, puzzleSlots } from "../config/pieces";
 import { progressFor } from "../lib/clients";
@@ -60,12 +60,14 @@ export function BoardPage({ clientId }: { clientId: string }) {
   const laIds = new Set<string>(LA_ABUSE_PIECE_IDS);
   const estateIds = new Set<string>(ESTATE_PIECE_IDS);
   const poaIds = new Set<string>(POA_PIECE_IDS);
+  const leadPaintIds = new Set<string>(LEAD_PAINT_PIECE_IDS);
   const lifePieces = extras.filter((piece) => lifeIds.has(piece.id));
   const ipaPieces = extras.filter((piece) => ipaIds.has(piece.id));
   const laPieces = extras.filter((piece) => laIds.has(piece.id));
   const estatePieces = extras.filter((piece) => estateIds.has(piece.id));
   const poaPieces = extras.filter((piece) => poaIds.has(piece.id));
-  const statePieces = extras.filter((piece) => !lifeIds.has(piece.id) && !ipaIds.has(piece.id) && !laIds.has(piece.id) && !estateIds.has(piece.id) && !poaIds.has(piece.id));
+  const leadPaintPieces = extras.filter((piece) => leadPaintIds.has(piece.id));
+  const statePieces = extras.filter((piece) => !lifeIds.has(piece.id) && !ipaIds.has(piece.id) && !laIds.has(piece.id) && !estateIds.has(piece.id) && !poaIds.has(piece.id) && !leadPaintIds.has(piece.id));
   const waived = new Set(client.notApplicable);
   const ipaForced = !spia && ipaRequired(client.state);
   const fasanoHref = safeHref(lifePieces.find((piece) => piece.id === "fasano")?.formUrl);
@@ -142,6 +144,17 @@ export function BoardPage({ clientId }: { clientId: string }) {
             {flag.label}
           </label>
         );
+      case "lead-paint":
+        return (
+          <label key={flag.id} className="checkline" title={flag.title}>
+            <input
+              type="checkbox"
+              checked={client!.leadPaint}
+              onChange={(event) => store.updateClient(client!.id, { leadPaint: event.target.checked })}
+            />
+            {flag.label}
+          </label>
+        );
       case "ipa":
         return (
           <Fragment key={flag.id}>
@@ -183,6 +196,7 @@ export function BoardPage({ clientId }: { clientId: string }) {
             {client.lifeContingent && <span className="life-badge">Life contingent</span>}
             {client.estate && <span className="estate-badge">Estate</span>}
             {client.poa && <span className="poa-badge">POA</span>}
+            {client.leadPaint && <span className="lead-paint-badge">Lead Paint</span>}
           </h1>
           <p>
             Click a piece to paste an https link, or drag a link onto it. {progress.filled} of {progress.total} complete.
@@ -387,6 +401,21 @@ export function BoardPage({ clientId }: { clientId: string }) {
               <p className="hint">This counts toward the total. Turning POA off hides it and keeps any link already saved.</p>
               <ExtraStrip
                 pieces={poaPieces}
+                links={client.links}
+                onEdit={setEditing}
+                onClear={setClearing}
+                onDropLink={dropLink}
+                onReject={(message) => store.notify(message)}
+              />
+            </div>
+          )}
+
+          {leadPaintPieces.length > 0 && (
+            <div className="extra-block">
+              <h2>Lead Paint</h2>
+              <p className="hint">This counts toward the total. Turning Lead Paint off hides it and keeps any link already saved.</p>
+              <ExtraStrip
+                pieces={leadPaintPieces}
                 links={client.links}
                 onEdit={setEditing}
                 onClear={setClearing}
