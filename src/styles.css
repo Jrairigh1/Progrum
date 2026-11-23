@@ -471,6 +471,11 @@ main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 48
 .quick-links h2 { font-family: var(--serif); color: var(--navy); margin: 0; font-size: 1.2rem; }
 .quick-links .hint { font-size: 0.82rem; margin: 8px 0 0; }
 .quick-advance { width: 100%; margin-top: 10px; text-align: center; text-decoration: none; }
+.quick-links a.btn {
+  color: white;
+  white-space: normal;
+  line-height: 1.25;
+}
 .quick-links ul { list-style: none; padding: 0; margin: 8px 0 0; }
 .quick-links li {
   display: flex;
@@ -722,8 +727,27 @@ main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 48
   padding: 16px 18px;
   margin-bottom: 16px;
 }
-.calc-form { display: grid; gap: 12px; }
-.calc-form label { display: flex; flex-direction: column; gap: 6px; font-size: 0.92rem; }
+.calc-form { display: grid; gap: 14px; }
+.calc-field { display: grid; gap: 6px; }
+.calc-field-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; align-items: baseline; }
+.calc-field-head label { font-size: 0.92rem; }
+.calc-help-toggle {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: var(--navy-mid);
+  text-decoration: underline;
+  font-size: 0.82rem;
+}
+.calc-help {
+  background: var(--info-bg);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.calc-help p { margin: 0; }
+.calc-help figure { margin: 8px 0 0; }
+.calc-help img { display: block; max-width: 100%; height: auto; border-radius: 8px; }
+.calc-help figcaption { margin-top: 6px; font-size: 0.85rem; color: var(--muted); }
 .calc-form input {
   width: 100%;
   border: 1px solid var(--line);
