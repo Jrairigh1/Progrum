@@ -228,7 +228,8 @@ main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 48
 .ipa-badge,
 .life-badge,
 .estate-badge,
-.poa-badge {
+.poa-badge,
+.lead-paint-badge {
   display: inline-block;
   margin-left: 8px;
   padding: 2px 8px;
@@ -248,6 +249,7 @@ main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 48
 .ipa-badge { background: #f8f1e2; }
 .estate-badge { background: #e7f4ee; }
 .poa-badge { background: #efe7f8; }
+.lead-paint-badge { background: #f4f0e0; }
 .ipa-note { flex-basis: 100%; margin: 0; }
 .form-ref a { color: var(--navy-mid); }
 .page-head h1, .empty h1, .empty h2, .guidance h2, .status h2, .extra-block h2 {

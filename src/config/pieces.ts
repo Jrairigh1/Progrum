@@ -11,6 +11,7 @@ import {
   INSURERS,
   ESTATE_PIECES,
   POA_PIECES,
+  LEAD_PAINT_PIECES,
   LA_ABUSE_PIECES,
   STATE_EXTRA_PIECES,
   STATES,
@@ -65,6 +66,7 @@ export interface PieceProfile {
   laAbuse?: boolean;
   estate?: boolean;
   poa?: boolean;
+  leadPaint?: boolean;
 }
 
 interface PieceContext extends PieceProfile {
@@ -245,6 +247,14 @@ export const EXTRA_PIECE_RULES: ExtraRule[] = [
     hint: piece.hint,
     when: (ctx: PieceContext) => ctx.poa === true,
     badge: () => "POA",
+  })),
+  ...LEAD_PAINT_PIECES.map((piece) => ({
+    id: piece.id,
+    label: piece.label,
+    short: piece.short,
+    hint: piece.hint,
+    when: (ctx: PieceContext) => ctx.leadPaint === true,
+    badge: () => "Lead Paint",
   })),
 ];
 

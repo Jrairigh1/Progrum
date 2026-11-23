@@ -143,7 +143,7 @@ export function ClientDialog({
 }: {
   open: boolean;
   onClose: () => void;
-  onCreate: (input: { name: string; state: string; insurer: string; dealType: DealType; lifeContingent: boolean; ipa: boolean; laAbuse: boolean; estate: boolean; poa: boolean; bestContactNumber: string; timeAtAddress: string }) => string | null;
+  onCreate: (input: { name: string; state: string; insurer: string; dealType: DealType; lifeContingent: boolean; ipa: boolean; laAbuse: boolean; estate: boolean; poa: boolean; leadPaint: boolean; bestContactNumber: string; timeAtAddress: string }) => string | null;
 }) {
   const [name, setName] = useState("");
   const [state, setState] = useState("");
@@ -154,6 +154,7 @@ export function ClientDialog({
   const [laAbuse, setLaAbuse] = useState(false);
   const [estate, setEstate] = useState(false);
   const [poa, setPoa] = useState(false);
+  const [leadPaint, setLeadPaint] = useState(false);
   const [bestContactNumber, setBestContactNumber] = useState("");
   const [error, setError] = useState<string | null>(null);
   const nameId = useId();
@@ -168,6 +169,7 @@ export function ClientDialog({
       setLaAbuse(false);
       setEstate(false);
       setPoa(false);
+      setLeadPaint(false);
       setBestContactNumber("");
       setError(null);
     }
@@ -175,7 +177,7 @@ export function ClientDialog({
 
   function submit(event: FormEvent) {
     event.preventDefault();
-    const result = onCreate({ name, state, insurer: laAbuse ? "" : insurer, dealType, lifeContingent, ipa, laAbuse, estate, poa, bestContactNumber, timeAtAddress: "" });
+    const result = onCreate({ name, state, insurer: laAbuse ? "" : insurer, dealType, lifeContingent, ipa, laAbuse, estate, poa, leadPaint, bestContactNumber, timeAtAddress: "" });
     if (result) setError(result);
     else onClose();
   }
@@ -244,6 +246,16 @@ export function ClientDialog({
               {flag.label}
             </label>
             <p className="hint">Adds Proof of POA.</p>
+          </Fragment>
+        );
+      case "lead-paint":
+        return (
+          <Fragment key={flag.id}>
+            <label className="checkline" title={flag.title}>
+              <input type="checkbox" checked={leadPaint} onChange={(event) => setLeadPaint(event.target.checked)} />
+              {flag.label}
+            </label>
+            <p className="hint">Adds Proof of Education.</p>
           </Fragment>
         );
       case "ipa":
