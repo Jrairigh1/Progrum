@@ -930,12 +930,16 @@ export const ADVANCE_FORM = "https://cbcsettlementfundings-my.sharepoint.com/:w:
 /** Blank best-interest declaration from the CBCisstant sidebar. Not fetched. */
 export const BEST_INTEREST_FORM = "https://cbcsettlementfundings-my.sharepoint.com/:w:/g/personal/jrairigh_cbcsettlementfunding_com/EZGgcilwEdBHmnBywjSFM3ABdyIxBmjDIfvvk33fdfgP_A?e=0AkBOR";
 
-/** Shared-drive templates from the CBCisstant Quick Links list. */
+/** Blank CBC application served with the site. Not a generator. */
+export const CBC_APPLICATION_FORM = "forms/CBC-Application.docx";
+
+/** Shared-drive templates from the CBCisstant Quick Links list, plus the blank CBC application. */
 export const QUICK_LINKS = [
   { label: "Advance Document", url: ADVANCE_FORM },
   { label: "Fasano Document", url: FASANO_FORM },
   { label: "Authorization to Release Information", url: AUTHORIZATION_FORM },
   { label: "Best Interest Declaration", url: BEST_INTEREST_FORM },
+  { label: "Application", url: CBC_APPLICATION_FORM, download: "CBC Application.docx" },
 ] as const;
 
 /**

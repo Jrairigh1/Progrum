@@ -136,9 +136,15 @@ export function QuickLinks({
           {QUICK_LINKS.map((link) => (
             <li key={link.label}>
               <span>{link.label}</span>
-              <a href={link.url} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer">
-                Open
-              </a>
+              {"download" in link ? (
+                <a href={link.url} download={link.download}>
+                  Download
+                </a>
+              ) : (
+                <a href={link.url} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer">
+                  Open
+                </a>
+              )}
             </li>
           ))}
         </ul>
