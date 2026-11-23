@@ -25,6 +25,8 @@ export function CopyLinks({ client, pieces }: { client: Client; pieces: PieceDef
     const missingLabels = pieces.filter((piece) => !client.links[piece.id]?.url).map((piece) => piece.label);
     const { plain, html } = buildCopyText({
       clientName: client.name,
+      bestContactNumber: client.bestContactNumber,
+      timeAtAddress: client.timeAtAddress,
       filled,
       missingLabels,
       includeMissing,

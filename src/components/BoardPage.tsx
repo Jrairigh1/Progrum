@@ -4,6 +4,7 @@ import { IPA_PIECE_IDS, LIFE_PIECE_IDS, puzzleSlots } from "../config/pieces";
 import { progressFor } from "../lib/clients";
 import { linkStamp } from "../lib/links";
 import { repHref } from "../lib/routing";
+import { formatContactNumber } from "../lib/phone";
 import { useStore } from "../store";
 import { AdvanceDialog } from "./AdvanceDoc";
 import { ContinuedContactDialog, LifeAffidavitDialog } from "./LifeDocs";
@@ -119,6 +120,27 @@ export function BoardPage({ clientId }: { clientId: string }) {
       </div>
 
       <form className="meta-form" onSubmit={(event) => event.preventDefault()}>
+        <label>
+          Best contact number
+          <input
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel"
+            placeholder="(555) 555-5555"
+            maxLength={40}
+            value={client.bestContactNumber}
+            onChange={(event) => store.updateClient(client.id, { bestContactNumber: formatContactNumber(event.target.value) })}
+          />
+        </label>
+        <label>
+          Time at address
+          <input
+            maxLength={80}
+            placeholder="3 years"
+            value={client.timeAtAddress}
+            onChange={(event) => store.updateClient(client.id, { timeAtAddress: event.target.value })}
+          />
+        </label>
         <label>
           State
           <select value={client.state} onChange={(event) => store.updateClient(client.id, { state: event.target.value })}>

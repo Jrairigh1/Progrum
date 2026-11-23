@@ -125,6 +125,8 @@ function sanitizeClient(raw: unknown): { client: Client; skippedLinks: number } 
       laAbuse,
       funded: raw.funded === true,
       fundedAt: raw.funded === true && typeof raw.fundedAt === "string" ? raw.fundedAt : undefined,
+      bestContactNumber: typeof raw.bestContactNumber === "string" ? raw.bestContactNumber.trim().slice(0, 40) : "",
+      timeAtAddress: typeof raw.timeAtAddress === "string" ? raw.timeAtAddress.trim().slice(0, 80) : "",
       links: linksResult.links,
       createdAt: typeof raw.createdAt === "string" ? raw.createdAt : now,
       updatedAt: typeof raw.updatedAt === "string" ? raw.updatedAt : now,

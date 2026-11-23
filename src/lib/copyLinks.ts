@@ -5,6 +5,8 @@ export interface CopyLine {
 
 export function buildCopyText(input: {
   clientName: string;
+  bestContactNumber?: string;
+  timeAtAddress?: string;
   filled: CopyLine[];
   missingLabels: string[];
   includeMissing: boolean;
@@ -13,6 +15,17 @@ export function buildCopyText(input: {
 }): { plain: string; html: string } {
   const plain: string[] = [input.clientName, ""];
   const html: string[] = [`<p><strong>${escapeHtml(input.clientName)}</strong></p>`];
+  const details = [
+    ["Best contact number", input.bestContactNumber?.trim() ?? ""],
+    ["Time at address", input.timeAtAddress?.trim() ?? ""],
+  ].filter(([, value]) => value);
+  if (details.length > 0) {
+    for (const [label, value] of details) {
+      plain.push(`${label}: ${value}`);
+      html.push(`<p>${escapeHtml(label)}: ${escapeHtml(value)}</p>`);
+    }
+    plain.push("");
+  }
 
   if (input.filled.length === 0) {
     plain.push("No links saved yet.");
