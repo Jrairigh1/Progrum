@@ -213,7 +213,7 @@ export function ClientDialog({
           />
           LA abuse
         </label>
-        <p className="hint">Adds Point Allocation and First Payment Breakdown.</p>
+        <p className="hint">Adds Point Allocation and First Payment Breakdown. Benefits Letter and Settlement Agreement are not required.</p>
         <label className="checkline">
           <input
             type="checkbox"
