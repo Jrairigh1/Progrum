@@ -556,6 +556,15 @@ export const STATE_NAMES: Record<string, string> = {
 };
 
 export const INSURERS: Record<string, InsurerRule> = {
+  "AZ": {
+    "name": "Allianz",
+    "notes": "Standard processing.",
+    "conferenceCalls": "No",
+    "paymentConfirmation": "Contact customer service",
+    "creditRating": "TBD",
+    "adminFee": "TBD",
+    "requestProcedure": "TBD"
+  },
   "AL": {
     "name": "Allstate Life Insurance Company",
     "notes": "Standard processing.",
