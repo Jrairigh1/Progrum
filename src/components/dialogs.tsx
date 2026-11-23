@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
 import { insurerOptions, ipaRequired, stateName, stateOptions } from "../config/catalog";
 import { formatAdded, parseHttpsUrl } from "../lib/links";
+import { formatContactNumber } from "../lib/phone";
 import { safeHref } from "./Puzzle";
 import type { DealType, LinkRecord, PieceDef } from "../types";
 
@@ -141,7 +142,7 @@ export function ClientDialog({
 }: {
   open: boolean;
   onClose: () => void;
-  onCreate: (input: { name: string; state: string; insurer: string; dealType: DealType; lifeContingent: boolean; ipa: boolean; laAbuse: boolean }) => string | null;
+  onCreate: (input: { name: string; state: string; insurer: string; dealType: DealType; lifeContingent: boolean; ipa: boolean; laAbuse: boolean; bestContactNumber: string; timeAtAddress: string }) => string | null;
 }) {
   const [name, setName] = useState("");
   const [state, setState] = useState("");
@@ -150,6 +151,8 @@ export function ClientDialog({
   const [lifeContingent, setLifeContingent] = useState(false);
   const [ipa, setIpa] = useState(false);
   const [laAbuse, setLaAbuse] = useState(false);
+  const [bestContactNumber, setBestContactNumber] = useState("");
+  const [timeAtAddress, setTimeAtAddress] = useState("");
   const [error, setError] = useState<string | null>(null);
   const nameId = useId();
   useEffect(() => {
@@ -161,13 +164,15 @@ export function ClientDialog({
       setLifeContingent(false);
       setIpa(false);
       setLaAbuse(false);
+      setBestContactNumber("");
+      setTimeAtAddress("");
       setError(null);
     }
   }, [open]);
 
   function submit(event: FormEvent) {
     event.preventDefault();
-    const result = onCreate({ name, state, insurer: laAbuse ? "" : insurer, dealType, lifeContingent, ipa, laAbuse });
+    const result = onCreate({ name, state, insurer: laAbuse ? "" : insurer, dealType, lifeContingent, ipa, laAbuse, bestContactNumber, timeAtAddress });
     if (result) setError(result);
     else onClose();
   }
@@ -177,6 +182,25 @@ export function ClientDialog({
       <form onSubmit={submit}>
         <label htmlFor={nameId}>Client name</label>
         <input id={nameId} value={name} onChange={(event) => setName(event.target.value)} maxLength={120} required />
+        <label htmlFor={`${nameId}-phone`}>Best contact number</label>
+        <input
+          id={`${nameId}-phone`}
+          type="tel"
+          inputMode="tel"
+          autoComplete="tel"
+          placeholder="(555) 555-5555"
+          maxLength={40}
+          value={bestContactNumber}
+          onChange={(event) => setBestContactNumber(formatContactNumber(event.target.value))}
+        />
+        <label htmlFor={`${nameId}-address-time`}>Time at address</label>
+        <input
+          id={`${nameId}-address-time`}
+          maxLength={80}
+          placeholder="3 years"
+          value={timeAtAddress}
+          onChange={(event) => setTimeAtAddress(event.target.value)}
+        />
         <label htmlFor={`${nameId}-state`}>State</label>
         <select id={`${nameId}-state`} value={state} onChange={(event) => setState(event.target.value)}>
           <option value="">Select later</option>

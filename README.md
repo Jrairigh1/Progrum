@@ -27,7 +27,7 @@ A new shared list starts with one rep, James. Deleting that rep stays deleted.
 3. Click a grey piece and paste an https link, or drag a link onto the piece. An optional display name overrides the name taken from the address. The piece shows that name, the date it was added, and an Open button.
 4. The status line reads “X of N complete” and lists every missing piece. N is 11 unless extra documents apply, including the five life-contingent pieces when that option is on. **Copy all links** includes those pieces in the same way.
 5. Search in the header finds a client across every rep. Type a name in **Your name** if you want edits stamped with it.
-6. **Copy all links** builds an email-ready list. Turn on **Still needed** to append missing pieces, and **State forms** to include that state’s blank templates.
+6. **Copy all links** builds an email-ready list. The client name is followed by **Best contact number** and **Time at address** when those fields are filled in. Turn on **Still needed** to append missing pieces, and **State forms** to include that state’s blank templates.
 
 Company-form links shown next to some extra pieces are blank templates. They do not fill the piece. Paste the link to the client's own document.
 

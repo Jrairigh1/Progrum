@@ -44,9 +44,11 @@ interface StoreValue {
     lifeContingent?: boolean;
     ipa?: boolean;
     laAbuse?: boolean;
+    bestContactNumber?: string;
+    timeAtAddress?: string;
   }) => { id: string } | { error: string };
   renameClient: (id: string, name: string) => string | null;
-  updateClient: (id: string, patch: Partial<Pick<Client, "state" | "insurer" | "dealType" | "lifeContingent" | "ipa" | "laAbuse">>) => void;
+  updateClient: (id: string, patch: Partial<Pick<Client, "state" | "insurer" | "dealType" | "lifeContingent" | "ipa" | "laAbuse" | "bestContactNumber" | "timeAtAddress">>) => void;
   moveClient: (id: string, repId: string) => void;
   deleteClient: (id: string) => void;
   setLink: (clientId: string, pieceId: string, url: string, customLabel: string) => string | null;
@@ -198,6 +200,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           ipa: input.ipa === true,
           laAbuse: input.laAbuse === true,
           funded: false,
+          bestContactNumber: input.bestContactNumber?.trim().slice(0, 40) ?? "",
+          timeAtAddress: input.timeAtAddress?.slice(0, 80) ?? "",
           insurer: input.laAbuse === true || !INSURERS[input.insurer] ? "" : input.insurer,
           links: {},
           createdAt: now,
@@ -229,6 +233,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           lifeContingent: typeof patch.lifeContingent === "boolean" ? patch.lifeContingent : current.lifeContingent === true,
           ipa: typeof patch.ipa === "boolean" ? patch.ipa : current.ipa === true,
           laAbuse,
+          bestContactNumber: patch.bestContactNumber === undefined ? current.bestContactNumber : patch.bestContactNumber.trim().slice(0, 40),
+          timeAtAddress: patch.timeAtAddress === undefined ? current.timeAtAddress : patch.timeAtAddress.slice(0, 80),
           updatedAt: new Date().toISOString(),
         };
         publish(repsRef.current, clientsRef.current.map((client) => (client.id === id ? next : client)));

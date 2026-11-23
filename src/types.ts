@@ -31,6 +31,10 @@ export interface Client {
   /** Funded deals leave the rep's active list and stay on the same rep. Missing means false. */
   funded: boolean;
   fundedAt?: string;
+  /** Optional phone. Missing on older records means empty. */
+  bestContactNumber: string;
+  /** Optional free text, such as "3 years". Missing on older records means empty. */
+  timeAtAddress: string;
   links: Record<string, LinkRecord>;
   createdAt: string;
   updatedAt: string;

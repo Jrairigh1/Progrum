@@ -64,7 +64,9 @@ function clientCoreChanged(previous: Client, next: Client): boolean {
     previous.ipa !== next.ipa ||
     previous.laAbuse !== next.laAbuse ||
     previous.funded !== next.funded ||
-    previous.fundedAt !== next.fundedAt
+    previous.fundedAt !== next.fundedAt ||
+    previous.bestContactNumber !== next.bestContactNumber ||
+    previous.timeAtAddress !== next.timeAtAddress
   );
 }
 
