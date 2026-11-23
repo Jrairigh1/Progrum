@@ -124,6 +124,7 @@ function sanitizeClient(raw: unknown): { client: Client; skippedLinks: number } 
       ipa: raw.ipa === true,
       laAbuse,
       estate: raw.estate === true,
+      poa: raw.poa === true,
       notApplicable: estateNotApplicable(raw.notApplicable),
       funded: raw.funded === true,
       fundedAt: raw.funded === true && typeof raw.fundedAt === "string" ? raw.fundedAt : undefined,

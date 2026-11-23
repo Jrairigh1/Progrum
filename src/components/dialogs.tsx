@@ -142,7 +142,7 @@ export function ClientDialog({
 }: {
   open: boolean;
   onClose: () => void;
-  onCreate: (input: { name: string; state: string; insurer: string; dealType: DealType; lifeContingent: boolean; ipa: boolean; laAbuse: boolean; estate: boolean; bestContactNumber: string; timeAtAddress: string }) => string | null;
+  onCreate: (input: { name: string; state: string; insurer: string; dealType: DealType; lifeContingent: boolean; ipa: boolean; laAbuse: boolean; estate: boolean; poa: boolean; bestContactNumber: string; timeAtAddress: string }) => string | null;
 }) {
   const [name, setName] = useState("");
   const [state, setState] = useState("");
@@ -152,6 +152,7 @@ export function ClientDialog({
   const [ipa, setIpa] = useState(false);
   const [laAbuse, setLaAbuse] = useState(false);
   const [estate, setEstate] = useState(false);
+  const [poa, setPoa] = useState(false);
   const [bestContactNumber, setBestContactNumber] = useState("");
   const [timeAtAddress, setTimeAtAddress] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -166,6 +167,7 @@ export function ClientDialog({
       setIpa(false);
       setLaAbuse(false);
       setEstate(false);
+      setPoa(false);
       setBestContactNumber("");
       setTimeAtAddress("");
       setError(null);
@@ -174,7 +176,7 @@ export function ClientDialog({
 
   function submit(event: FormEvent) {
     event.preventDefault();
-    const result = onCreate({ name, state, insurer: laAbuse ? "" : insurer, dealType, lifeContingent, ipa, laAbuse, estate, bestContactNumber, timeAtAddress });
+    const result = onCreate({ name, state, insurer: laAbuse ? "" : insurer, dealType, lifeContingent, ipa, laAbuse, estate, poa, bestContactNumber, timeAtAddress });
     if (result) setError(result);
     else onClose();
   }
@@ -261,6 +263,11 @@ export function ClientDialog({
         <p className="hint">
           Adds Death Certificate, Letter of Administration, Application of Deceased, Will (if applicable), and List of Dependents for Deceased.
         </p>
+        <label className="checkline" title="POA (Power of Attorney)">
+          <input type="checkbox" checked={poa} onChange={(event) => setPoa(event.target.checked)} />
+          POA (Power of Attorney)
+        </label>
+        <p className="hint">Adds Proof of POA.</p>
         <label className="checkline">
           <input
             type="checkbox"

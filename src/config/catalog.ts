@@ -1006,6 +1006,18 @@ export const ESTATE_PIECES: { id: string; label: string; short: string; hint: st
 
 export const ESTATE_PIECE_IDS = ESTATE_PIECES.map((piece) => piece.id);
 
+/** Link-only proof of power of attorney. Edit the name here. */
+export const POA_PIECES = [
+  {
+    id: "proof-of-poa",
+    label: "Proof of POA",
+    short: "Proof of POA",
+    hint: "Proof of power of attorney.",
+  },
+] as const;
+
+export const POA_PIECE_IDS = POA_PIECES.map((piece) => piece.id);
+
 /** Piece ids that can be marked not applicable. */
 export function estateNotApplicable(ids: unknown): string[] {
   const allowed = new Set(ESTATE_PIECES.filter((piece) => piece.optional).map((piece) => piece.id));

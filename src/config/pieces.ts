@@ -10,6 +10,7 @@ import {
   FASANO_FORM,
   INSURERS,
   ESTATE_PIECES,
+  POA_PIECES,
   LA_ABUSE_PIECES,
   STATE_EXTRA_PIECES,
   STATES,
@@ -63,6 +64,7 @@ export interface PieceProfile {
   ipa?: boolean;
   laAbuse?: boolean;
   estate?: boolean;
+  poa?: boolean;
 }
 
 interface PieceContext extends PieceProfile {
@@ -235,6 +237,14 @@ export const EXTRA_PIECE_RULES: ExtraRule[] = [
     optional: piece.optional === true,
     when: (ctx: PieceContext) => ctx.estate === true,
     badge: () => "Estate",
+  })),
+  ...POA_PIECES.map((piece) => ({
+    id: piece.id,
+    label: piece.label,
+    short: piece.short,
+    hint: piece.hint,
+    when: (ctx: PieceContext) => ctx.poa === true,
+    badge: () => "POA",
   })),
 ];
 
