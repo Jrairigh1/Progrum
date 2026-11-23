@@ -72,6 +72,7 @@ export function ClientsPage({ repId }: { repId: string }) {
                       {client.laAbuse && <span className="la-badge">LA abuse</span>}
                       {client.dealType !== "spia" && (ipaRequired(client.state) || client.ipa) && <span className="ipa-badge">IPA</span>}
                       {client.lifeContingent && <span className="life-badge">Life contingent</span>}
+                      {client.estate && <span className="estate-badge">Estate</span>}
                     </h2>
                     <p className="quiet">
                       {client.state ? stateName(client.state) : "No state"}

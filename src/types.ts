@@ -28,6 +28,10 @@ export interface Client {
   ipa: boolean;
   /** LA abuse file. No insurer, plus Point Allocation and First Payment Breakdown. Missing means false. */
   laAbuse: boolean;
+  /** Estate file. Adds the estate documents. Missing means false. */
+  estate: boolean;
+  /** Optional pieces marked not applicable, such as Will. Missing means none. */
+  notApplicable: string[];
   /** Funded deals leave the rep's active list and stay on the same rep. Missing means false. */
   funded: boolean;
   fundedAt?: string;
@@ -55,4 +59,6 @@ export interface PieceDef {
   badge?: string;
   formUrl?: string;
   formLabel?: string;
+  /** Empty does not count as missing when the client marks it not applicable. */
+  optional?: boolean;
 }

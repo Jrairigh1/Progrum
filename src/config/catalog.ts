@@ -956,6 +956,54 @@ export const LA_ABUSE_PIECES = [
 
 export const LA_ABUSE_PIECE_IDS = LA_ABUSE_PIECES.map((piece) => piece.id);
 
+/**
+ * Extra documents for an estate file. These are link-only pieces, like
+ * every other document on a board. Will can be marked not applicable.
+ * Edit the names here.
+ */
+export const ESTATE_PIECES: { id: string; label: string; short: string; hint: string; optional?: boolean }[] = [
+  {
+    id: "death-certificate",
+    label: "Death Certificate",
+    short: "Death Certificate",
+    hint: "Death certificate for an estate file.",
+  },
+  {
+    id: "letter-of-administration",
+    label: "Letter of Administration",
+    short: "Letter of Administration",
+    hint: "Letter of administration for an estate file.",
+  },
+  {
+    id: "application-of-deceased",
+    label: "Application of Deceased",
+    short: "Application of Deceased",
+    hint: "Application of the deceased for an estate file.",
+  },
+  {
+    id: "will",
+    label: "Will (if applicable)",
+    short: "Will (if applicable)",
+    hint: "Will, when the estate has one. Mark not applicable if there is no will.",
+    optional: true,
+  },
+  {
+    id: "list-of-dependents",
+    label: "List of Dependents for Deceased",
+    short: "List of Dependents",
+    hint: "List of dependents for the deceased.",
+  },
+];
+
+export const ESTATE_PIECE_IDS = ESTATE_PIECES.map((piece) => piece.id);
+
+/** Piece ids that can be marked not applicable. */
+export function estateNotApplicable(ids: unknown): string[] {
+  const allowed = new Set(ESTATE_PIECES.filter((piece) => piece.optional).map((piece) => piece.id));
+  if (!Array.isArray(ids)) return [];
+  return [...new Set(ids.filter((id): id is string => typeof id === "string" && allowed.has(id)))].sort();
+}
+
 /** Berkshire may appear at the hearing in these states. */
 export const BIFCO_STATES = ["CA","AZ","FL","MS","TX","IN","IL","PA","NY"];
 

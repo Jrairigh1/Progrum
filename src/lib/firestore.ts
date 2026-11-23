@@ -16,6 +16,7 @@ import {
   type Unsubscribe,
 } from "firebase/firestore";
 import { firebaseConfig } from "../config/firebase";
+import { estateNotApplicable } from "../config/catalog";
 import { isKnownPieceId } from "../config/pieces";
 import { parseHttpsUrl } from "./links";
 import type { Client, DealType, LinkRecord, PersistedState, Rep } from "../types";
@@ -78,6 +79,8 @@ export function listenBoards(
               lifeContingent: data.lifeContingent === true,
               ipa: data.ipa === true,
               laAbuse: data.laAbuse === true,
+              estate: data.estate === true,
+              notApplicable: estateNotApplicable(data.notApplicable),
               funded: data.funded === true,
               fundedAt: data.funded === true ? stringField(data.fundedAt) || undefined : undefined,
               bestContactNumber: stringField(data.bestContactNumber),
@@ -217,6 +220,8 @@ function clientPayload(client: Client): Record<string, unknown> {
     lifeContingent: client.lifeContingent === true,
     ipa: client.ipa === true,
     laAbuse: client.laAbuse === true,
+    estate: client.estate === true,
+    notApplicable: client.notApplicable,
     funded: client.funded === true,
     bestContactNumber: client.bestContactNumber,
     timeAtAddress: client.timeAtAddress,

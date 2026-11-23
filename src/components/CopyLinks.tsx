@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { stateFormsFor } from "../config/catalog";
+import { pieceWaived } from "../lib/clients";
 import { buildCopyText, writeClipboard } from "../lib/copyLinks";
 import type { Client, PieceDef } from "../types";
 
@@ -18,11 +19,12 @@ export function CopyLinks({ client, pieces }: { client: Client; pieces: PieceDef
   }, [fallback]);
 
   async function copy() {
-    const filled = pieces.flatMap((piece) => {
+    const applicable = pieces.filter((piece) => !pieceWaived(client, piece));
+    const filled = applicable.flatMap((piece) => {
       const link = client.links[piece.id];
       return link?.url ? [{ label: piece.label, url: link.url }] : [];
     });
-    const missingLabels = pieces.filter((piece) => !client.links[piece.id]?.url).map((piece) => piece.label);
+    const missingLabels = applicable.filter((piece) => !client.links[piece.id]?.url).map((piece) => piece.label);
     const { plain, html } = buildCopyText({
       clientName: client.name,
       bestContactNumber: client.bestContactNumber,

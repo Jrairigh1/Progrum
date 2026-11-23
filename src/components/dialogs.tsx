@@ -142,7 +142,7 @@ export function ClientDialog({
 }: {
   open: boolean;
   onClose: () => void;
-  onCreate: (input: { name: string; state: string; insurer: string; dealType: DealType; lifeContingent: boolean; ipa: boolean; laAbuse: boolean; bestContactNumber: string; timeAtAddress: string }) => string | null;
+  onCreate: (input: { name: string; state: string; insurer: string; dealType: DealType; lifeContingent: boolean; ipa: boolean; laAbuse: boolean; estate: boolean; bestContactNumber: string; timeAtAddress: string }) => string | null;
 }) {
   const [name, setName] = useState("");
   const [state, setState] = useState("");
@@ -151,6 +151,7 @@ export function ClientDialog({
   const [lifeContingent, setLifeContingent] = useState(false);
   const [ipa, setIpa] = useState(false);
   const [laAbuse, setLaAbuse] = useState(false);
+  const [estate, setEstate] = useState(false);
   const [bestContactNumber, setBestContactNumber] = useState("");
   const [timeAtAddress, setTimeAtAddress] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -164,6 +165,7 @@ export function ClientDialog({
       setLifeContingent(false);
       setIpa(false);
       setLaAbuse(false);
+      setEstate(false);
       setBestContactNumber("");
       setTimeAtAddress("");
       setError(null);
@@ -172,7 +174,7 @@ export function ClientDialog({
 
   function submit(event: FormEvent) {
     event.preventDefault();
-    const result = onCreate({ name, state, insurer: laAbuse ? "" : insurer, dealType, lifeContingent, ipa, laAbuse, bestContactNumber, timeAtAddress });
+    const result = onCreate({ name, state, insurer: laAbuse ? "" : insurer, dealType, lifeContingent, ipa, laAbuse, estate, bestContactNumber, timeAtAddress });
     if (result) setError(result);
     else onClose();
   }
@@ -252,6 +254,13 @@ export function ClientDialog({
           Life contingent
         </label>
         <p className="hint">Adds Life Affidavit, 2 Person Notifier, Fasano, DocuCert for Fasano, and Life Expectancy Doc.</p>
+        <label className="checkline">
+          <input type="checkbox" checked={estate} onChange={(event) => setEstate(event.target.checked)} />
+          Estate
+        </label>
+        <p className="hint">
+          Adds Death Certificate, Letter of Administration, Application of Deceased, Will (if applicable), and List of Dependents for Deceased.
+        </p>
         <label className="checkline">
           <input
             type="checkbox"

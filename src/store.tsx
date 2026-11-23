@@ -19,7 +19,7 @@ import { friendlyNameFromUrl, parseHttpsUrl } from "./lib/links";
 import { mergeLocal } from "./lib/syncPlan";
 import { getYourName } from "./lib/yourName";
 import { isKnownPieceId } from "./config/pieces";
-import { INSURERS, STATES } from "./config/catalog";
+import { estateNotApplicable, INSURERS, STATES } from "./config/catalog";
 import type { Client, DealType, PersistedState, Rep } from "./types";
 
 interface StoreValue {
@@ -44,11 +44,12 @@ interface StoreValue {
     lifeContingent?: boolean;
     ipa?: boolean;
     laAbuse?: boolean;
+    estate?: boolean;
     bestContactNumber?: string;
     timeAtAddress?: string;
   }) => { id: string } | { error: string };
   renameClient: (id: string, name: string) => string | null;
-  updateClient: (id: string, patch: Partial<Pick<Client, "state" | "insurer" | "dealType" | "lifeContingent" | "ipa" | "laAbuse" | "bestContactNumber" | "timeAtAddress">>) => void;
+  updateClient: (id: string, patch: Partial<Pick<Client, "state" | "insurer" | "dealType" | "lifeContingent" | "ipa" | "laAbuse" | "estate" | "notApplicable" | "bestContactNumber" | "timeAtAddress">>) => void;
   moveClient: (id: string, repId: string) => void;
   deleteClient: (id: string) => void;
   setLink: (clientId: string, pieceId: string, url: string, customLabel: string) => string | null;
@@ -199,6 +200,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           lifeContingent: input.lifeContingent === true,
           ipa: input.ipa === true,
           laAbuse: input.laAbuse === true,
+          estate: input.estate === true,
+          notApplicable: [],
           funded: false,
           bestContactNumber: input.bestContactNumber?.trim().slice(0, 40) ?? "",
           timeAtAddress: input.timeAtAddress?.slice(0, 80) ?? "",
@@ -233,6 +236,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           lifeContingent: typeof patch.lifeContingent === "boolean" ? patch.lifeContingent : current.lifeContingent === true,
           ipa: typeof patch.ipa === "boolean" ? patch.ipa : current.ipa === true,
           laAbuse,
+          estate: typeof patch.estate === "boolean" ? patch.estate : current.estate === true,
+          notApplicable: patch.notApplicable === undefined ? current.notApplicable : estateNotApplicable(patch.notApplicable),
           bestContactNumber: patch.bestContactNumber === undefined ? current.bestContactNumber : patch.bestContactNumber.trim().slice(0, 40),
           timeAtAddress: patch.timeAtAddress === undefined ? current.timeAtAddress : patch.timeAtAddress.slice(0, 80),
           updatedAt: new Date().toISOString(),
