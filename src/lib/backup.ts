@@ -1,5 +1,5 @@
 import { isKnownPieceId } from "../config/pieces";
-import { INSURERS, STATES } from "../config/catalog";
+import { estateNotApplicable, INSURERS, STATES } from "../config/catalog";
 import type { Client, DealType, LinkRecord, PersistedState, Rep } from "../types";
 import { friendlyNameFromUrl, parseHttpsUrl } from "./links";
 
@@ -123,6 +123,8 @@ function sanitizeClient(raw: unknown): { client: Client; skippedLinks: number } 
       lifeContingent: raw.lifeContingent === true,
       ipa: raw.ipa === true,
       laAbuse,
+      estate: raw.estate === true,
+      notApplicable: estateNotApplicable(raw.notApplicable),
       funded: raw.funded === true,
       fundedAt: raw.funded === true && typeof raw.fundedAt === "string" ? raw.fundedAt : undefined,
       bestContactNumber: typeof raw.bestContactNumber === "string" ? raw.bestContactNumber.trim().slice(0, 40) : "",

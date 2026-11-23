@@ -63,6 +63,8 @@ function clientCoreChanged(previous: Client, next: Client): boolean {
     previous.lifeContingent !== next.lifeContingent ||
     previous.ipa !== next.ipa ||
     previous.laAbuse !== next.laAbuse ||
+    previous.estate !== next.estate ||
+    previous.notApplicable.join("\n") !== next.notApplicable.join("\n") ||
     previous.funded !== next.funded ||
     previous.fundedAt !== next.fundedAt ||
     previous.bestContactNumber !== next.bestContactNumber ||

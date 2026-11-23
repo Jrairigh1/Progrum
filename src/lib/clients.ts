@@ -9,12 +9,17 @@ export interface Progress {
   pieces: PieceDef[];
 }
 
+export function pieceWaived(client: Client, piece: PieceDef): boolean {
+  return piece.optional === true && client.notApplicable.includes(piece.id);
+}
+
 export function progressFor(client: Client): Progress {
   const pieces = piecesFor(client);
-  const missing = pieces.filter((piece) => !client.links[piece.id]?.url);
+  const required = pieces.filter((piece) => !pieceWaived(client, piece));
+  const missing = required.filter((piece) => !client.links[piece.id]?.url);
   return {
-    filled: pieces.length - missing.length,
-    total: pieces.length,
+    filled: required.length - missing.length,
+    total: required.length,
     missing,
     pieces,
   };

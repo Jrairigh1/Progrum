@@ -226,7 +226,8 @@ main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 48
 .spia-badge,
 .la-badge,
 .ipa-badge,
-.life-badge {
+.life-badge,
+.estate-badge {
   display: inline-block;
   margin-left: 8px;
   padding: 2px 8px;
@@ -244,6 +245,7 @@ main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 48
 .spia-badge { background: #e7eef8; }
 .la-badge { background: #f8e7e7; }
 .ipa-badge { background: #f8f1e2; }
+.estate-badge { background: #e7f4ee; }
 .ipa-note { flex-basis: 100%; margin: 0; }
 .form-ref a { color: var(--navy-mid); }
 .page-head h1, .empty h1, .empty h2, .guidance h2, .status h2, .extra-block h2 {
@@ -518,6 +520,21 @@ main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 48
   padding: 1px 6px;
 }
 .cell.is-empty .cell-badge { background: rgba(4, 32, 71, 0.08); }
+.cell-na {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 0 8px 8px;
+  font-size: 0.72rem;
+  line-height: 1.2;
+  color: var(--navy);
+  text-shadow: none;
+  position: relative;
+  z-index: 2;
+}
+.cell-na input { width: auto; margin: 0; padding: 0; }
+.cell.is-filled .cell-na { color: #f7f3ea; }
 .cell-actions { display: flex; justify-content: center; gap: 6px; padding: 0 8px 8%; }
 .cell-actions a, .cell-actions button {
   color: white;

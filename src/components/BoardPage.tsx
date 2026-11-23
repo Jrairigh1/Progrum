@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { insurerOptions, ipaRequired, LA_ABUSE_PIECE_IDS, stateName, stateOptions } from "../config/catalog";
+import { ESTATE_PIECE_IDS, insurerOptions, ipaRequired, LA_ABUSE_PIECE_IDS, stateName, stateOptions } from "../config/catalog";
 import { IPA_PIECE_IDS, LIFE_PIECE_IDS, puzzleSlots } from "../config/pieces";
 import { progressFor } from "../lib/clients";
 import { linkStamp } from "../lib/links";
@@ -56,10 +56,13 @@ export function BoardPage({ clientId }: { clientId: string }) {
   const lifeIds = new Set<string>(LIFE_PIECE_IDS);
   const ipaIds = new Set<string>(IPA_PIECE_IDS);
   const laIds = new Set<string>(LA_ABUSE_PIECE_IDS);
+  const estateIds = new Set<string>(ESTATE_PIECE_IDS);
   const lifePieces = extras.filter((piece) => lifeIds.has(piece.id));
   const ipaPieces = extras.filter((piece) => ipaIds.has(piece.id));
   const laPieces = extras.filter((piece) => laIds.has(piece.id));
-  const statePieces = extras.filter((piece) => !lifeIds.has(piece.id) && !ipaIds.has(piece.id) && !laIds.has(piece.id));
+  const estatePieces = extras.filter((piece) => estateIds.has(piece.id));
+  const statePieces = extras.filter((piece) => !lifeIds.has(piece.id) && !ipaIds.has(piece.id) && !laIds.has(piece.id) && !estateIds.has(piece.id));
+  const waived = new Set(client.notApplicable);
   const ipaForced = !spia && ipaRequired(client.state);
   const fasanoHref = safeHref(lifePieces.find((piece) => piece.id === "fasano")?.formUrl);
   const done = progress.total > 0 && progress.missing.length === 0;
@@ -78,6 +81,13 @@ export function BoardPage({ clientId }: { clientId: string }) {
     else store.notify(`Link saved for ${piece.label}.`);
   }
 
+  function markNotApplicable(piece: PieceDef, value: boolean) {
+    const next = new Set(client!.notApplicable);
+    if (value) next.add(piece.id);
+    else next.delete(piece.id);
+    store.updateClient(client!.id, { notApplicable: [...next] });
+  }
+
   return (
     <section className="page">
       <Crumbs rep={rep} client={client} />
@@ -89,6 +99,7 @@ export function BoardPage({ clientId }: { clientId: string }) {
             {client.laAbuse && <span className="la-badge">LA abuse</span>}
             {(ipaForced || (!spia && client.ipa)) && <span className="ipa-badge">IPA</span>}
             {client.lifeContingent && <span className="life-badge">Life contingent</span>}
+            {client.estate && <span className="estate-badge">Estate</span>}
           </h1>
           <p>
             Click a piece to paste an https link, or drag a link onto it. {progress.filled} of {progress.total} complete.
@@ -193,6 +204,14 @@ export function BoardPage({ clientId }: { clientId: string }) {
               onChange={(event) => store.updateClient(client.id, { lifeContingent: event.target.checked })}
             />
             Life contingent
+          </label>
+          <label className="checkline">
+            <input
+              type="checkbox"
+              checked={client.estate}
+              onChange={(event) => store.updateClient(client.id, { estate: event.target.checked })}
+            />
+            Estate
           </label>
           <label className="checkline">
             <input
@@ -316,6 +335,25 @@ export function BoardPage({ clientId }: { clientId: string }) {
             </div>
           )}
 
+          {estatePieces.length > 0 && (
+            <div className="extra-block">
+              <h2>Estate documents</h2>
+              <p className="hint">
+                These count toward the total. Will can be marked not applicable. Turning Estate off hides them and keeps any links already saved.
+              </p>
+              <ExtraStrip
+                pieces={estatePieces}
+                links={client.links}
+                notApplicable={waived}
+                onNotApplicable={markNotApplicable}
+                onEdit={setEditing}
+                onClear={setClearing}
+                onDropLink={dropLink}
+                onReject={(message) => store.notify(message)}
+              />
+            </div>
+          )}
+
           {lifePieces.length > 0 && (
             <div className="extra-block">
               <h2>Life contingent documents</h2>
@@ -372,6 +410,16 @@ export function BoardPage({ clientId }: { clientId: string }) {
                       <button type="button" className="btn ghost" onClick={() => setClearing(piece)}>
                         Clear
                       </button>
+                    )}
+                    {piece.optional && (
+                      <label className="checkline">
+                        <input
+                          type="checkbox"
+                          checked={waived.has(piece.id)}
+                          onChange={(event) => markNotApplicable(piece, event.target.checked)}
+                        />
+                        Not applicable
+                      </label>
                     )}
                   </div>
                 </li>

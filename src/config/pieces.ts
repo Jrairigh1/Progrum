@@ -9,6 +9,7 @@ import {
   AUTHORIZATION_FORM,
   FASANO_FORM,
   INSURERS,
+  ESTATE_PIECES,
   LA_ABUSE_PIECES,
   STATE_EXTRA_PIECES,
   STATES,
@@ -61,6 +62,7 @@ export interface PieceProfile {
   lifeContingent?: boolean;
   ipa?: boolean;
   laAbuse?: boolean;
+  estate?: boolean;
 }
 
 interface PieceContext extends PieceProfile {
@@ -77,6 +79,7 @@ interface ExtraRule {
   badge?: (ctx: PieceContext) => string | undefined;
   formUrl?: (ctx: PieceContext) => string | undefined;
   formLabel?: string;
+  optional?: boolean;
 }
 
 const CLEARING_PAYS = new Set(["AG", "FM", "USNY", "US"]);
@@ -224,6 +227,15 @@ export const EXTRA_PIECE_RULES: ExtraRule[] = [
     when: (ctx: PieceContext) => ctx.laAbuse === true,
     badge: () => "LA abuse",
   })),
+  ...ESTATE_PIECES.map((piece) => ({
+    id: piece.id,
+    label: piece.label,
+    short: piece.short,
+    hint: piece.hint,
+    optional: piece.optional === true,
+    when: (ctx: PieceContext) => ctx.estate === true,
+    badge: () => "Estate",
+  })),
 ];
 
 export const LIFE_PIECE_IDS = ["life-affidavit", "two-person-notifier", "fasano", "docucert-fasano", "life-expectancy"] as const;
@@ -288,6 +300,7 @@ export function piecesFor(profile: PieceProfile): PieceDef[] {
     badge: rule.badge?.(ctx),
     formUrl: rule.formUrl?.(ctx),
     formLabel: rule.formLabel,
+    optional: rule.optional === true,
   }));
   return [...core, ...extras];
 }

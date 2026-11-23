@@ -122,7 +122,12 @@ export function ExtraStrip({
   onClear,
   onDropLink,
   onReject,
-}: Omit<BoardProps, "complete">) {
+  notApplicable,
+  onNotApplicable,
+}: Omit<BoardProps, "complete"> & {
+  notApplicable?: ReadonlySet<string>;
+  onNotApplicable?: (piece: PieceDef, value: boolean) => void;
+}) {
   if (pieces.length === 0) return null;
   const width = EXTRA_W * pieces.length;
   const height = EXTRA_H;
@@ -178,6 +183,8 @@ export function ExtraStrip({
               key={piece.id}
               piece={piece}
               link={links[piece.id]}
+              notApplicable={notApplicable?.has(piece.id) === true}
+              onNotApplicable={onNotApplicable}
               onEdit={onEdit}
               onClear={onClear}
               onDropLink={onDropLink}
@@ -193,6 +200,8 @@ export function ExtraStrip({
 function PieceFace({
   piece,
   link,
+  notApplicable,
+  onNotApplicable,
   onEdit,
   onClear,
   onDropLink,
@@ -200,6 +209,8 @@ function PieceFace({
 }: {
   piece: PieceDef;
   link: LinkRecord | undefined;
+  notApplicable?: boolean;
+  onNotApplicable?: (piece: PieceDef, value: boolean) => void;
   onEdit: (piece: PieceDef) => void;
   onClear: (piece: PieceDef) => void;
   onDropLink: (piece: PieceDef, url: string) => void;
@@ -241,7 +252,7 @@ function PieceFace({
 
   return (
     <div
-      className={`cell ${filled ? "is-filled" : "is-empty"} ${over ? "is-over" : ""}`}
+      className={`cell ${filled ? "is-filled" : "is-empty"} ${notApplicable ? "is-na" : ""} ${over ? "is-over" : ""}`}
       data-piece={piece.id}
       onDragEnter={allowDrop}
       onDragOver={allowDrop}
@@ -266,10 +277,20 @@ function PieceFace({
             <span className="cell-date">{linkStamp(link)}</span>
           </>
         ) : (
-          <span className="cell-cue">Paste link</span>
+          <span className="cell-cue">{notApplicable ? "Not applicable" : "Paste link"}</span>
         )}
         {piece.badge && <span className="cell-badge">{piece.badge}</span>}
       </button>
+      {piece.optional && onNotApplicable && (
+        <label className="cell-na">
+          <input
+            type="checkbox"
+            checked={notApplicable === true}
+            onChange={(event) => onNotApplicable(piece, event.target.checked)}
+          />
+          Not applicable
+        </label>
+      )}
       {filled && link && (
         <div className="cell-actions">
           <a href={link.url} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer">
