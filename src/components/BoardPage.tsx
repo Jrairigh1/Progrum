@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ESTATE_PIECE_IDS, insurerOptions, ipaRequired, LA_ABUSE_PIECE_IDS, stateName, stateOptions } from "../config/catalog";
+import { ESTATE_PIECE_IDS, insurerOptions, ipaRequired, LA_ABUSE_PIECE_IDS, POA_PIECE_IDS, stateName, stateOptions } from "../config/catalog";
 import { IPA_PIECE_IDS, LIFE_PIECE_IDS, puzzleSlots } from "../config/pieces";
 import { progressFor } from "../lib/clients";
 import { linkStamp } from "../lib/links";
@@ -57,11 +57,13 @@ export function BoardPage({ clientId }: { clientId: string }) {
   const ipaIds = new Set<string>(IPA_PIECE_IDS);
   const laIds = new Set<string>(LA_ABUSE_PIECE_IDS);
   const estateIds = new Set<string>(ESTATE_PIECE_IDS);
+  const poaIds = new Set<string>(POA_PIECE_IDS);
   const lifePieces = extras.filter((piece) => lifeIds.has(piece.id));
   const ipaPieces = extras.filter((piece) => ipaIds.has(piece.id));
   const laPieces = extras.filter((piece) => laIds.has(piece.id));
   const estatePieces = extras.filter((piece) => estateIds.has(piece.id));
-  const statePieces = extras.filter((piece) => !lifeIds.has(piece.id) && !ipaIds.has(piece.id) && !laIds.has(piece.id) && !estateIds.has(piece.id));
+  const poaPieces = extras.filter((piece) => poaIds.has(piece.id));
+  const statePieces = extras.filter((piece) => !lifeIds.has(piece.id) && !ipaIds.has(piece.id) && !laIds.has(piece.id) && !estateIds.has(piece.id) && !poaIds.has(piece.id));
   const waived = new Set(client.notApplicable);
   const ipaForced = !spia && ipaRequired(client.state);
   const fasanoHref = safeHref(lifePieces.find((piece) => piece.id === "fasano")?.formUrl);
@@ -100,6 +102,7 @@ export function BoardPage({ clientId }: { clientId: string }) {
             {(ipaForced || (!spia && client.ipa)) && <span className="ipa-badge">IPA</span>}
             {client.lifeContingent && <span className="life-badge">Life contingent</span>}
             {client.estate && <span className="estate-badge">Estate</span>}
+            {client.poa && <span className="poa-badge">POA</span>}
           </h1>
           <p>
             Click a piece to paste an https link, or drag a link onto it. {progress.filled} of {progress.total} complete.
@@ -191,6 +194,14 @@ export function BoardPage({ clientId }: { clientId: string }) {
               onChange={(event) => store.updateClient(client.id, { estate: event.target.checked })}
             />
             Estate
+          </label>
+          <label className="checkline" title="POA (Power of Attorney)">
+            <input
+              type="checkbox"
+              checked={client.poa}
+              onChange={(event) => store.updateClient(client.id, { poa: event.target.checked })}
+            />
+            POA (Power of Attorney)
           </label>
           <label className="checkline">
             <input
@@ -329,6 +340,21 @@ export function BoardPage({ clientId }: { clientId: string }) {
               </p>
               <ExtraStrip
                 pieces={ipaPieces}
+                links={client.links}
+                onEdit={setEditing}
+                onClear={setClearing}
+                onDropLink={dropLink}
+                onReject={(message) => store.notify(message)}
+              />
+            </div>
+          )}
+
+          {poaPieces.length > 0 && (
+            <div className="extra-block">
+              <h2>POA</h2>
+              <p className="hint">This counts toward the total. Turning POA off hides it and keeps any link already saved.</p>
+              <ExtraStrip
+                pieces={poaPieces}
                 links={client.links}
                 onEdit={setEditing}
                 onClear={setClearing}

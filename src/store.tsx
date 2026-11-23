@@ -45,11 +45,12 @@ interface StoreValue {
     ipa?: boolean;
     laAbuse?: boolean;
     estate?: boolean;
+    poa?: boolean;
     bestContactNumber?: string;
     timeAtAddress?: string;
   }) => { id: string } | { error: string };
   renameClient: (id: string, name: string) => string | null;
-  updateClient: (id: string, patch: Partial<Pick<Client, "state" | "insurer" | "dealType" | "lifeContingent" | "ipa" | "laAbuse" | "estate" | "notApplicable" | "bestContactNumber" | "timeAtAddress">>) => void;
+  updateClient: (id: string, patch: Partial<Pick<Client, "state" | "insurer" | "dealType" | "lifeContingent" | "ipa" | "laAbuse" | "estate" | "poa" | "notApplicable" | "bestContactNumber" | "timeAtAddress">>) => void;
   moveClient: (id: string, repId: string) => void;
   deleteClient: (id: string) => void;
   setLink: (clientId: string, pieceId: string, url: string, customLabel: string) => string | null;
@@ -201,6 +202,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           ipa: input.ipa === true,
           laAbuse: input.laAbuse === true,
           estate: input.estate === true,
+          poa: input.poa === true,
           notApplicable: [],
           funded: false,
           bestContactNumber: input.bestContactNumber?.trim().slice(0, 40) ?? "",
@@ -237,6 +239,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           ipa: typeof patch.ipa === "boolean" ? patch.ipa : current.ipa === true,
           laAbuse,
           estate: typeof patch.estate === "boolean" ? patch.estate : current.estate === true,
+          poa: typeof patch.poa === "boolean" ? patch.poa : current.poa === true,
           notApplicable: patch.notApplicable === undefined ? current.notApplicable : estateNotApplicable(patch.notApplicable),
           bestContactNumber: patch.bestContactNumber === undefined ? current.bestContactNumber : patch.bestContactNumber.trim().slice(0, 40),
           timeAtAddress: patch.timeAtAddress === undefined ? current.timeAtAddress : patch.timeAtAddress.slice(0, 80),

@@ -30,6 +30,8 @@ export interface Client {
   laAbuse: boolean;
   /** Estate file. Adds the estate documents. Missing means false. */
   estate: boolean;
+  /** Power of attorney. Adds Proof of POA. Missing means false. */
+  poa: boolean;
   /** Optional pieces marked not applicable, such as Will. Missing means none. */
   notApplicable: string[];
   /** Funded deals leave the rep's active list and stay on the same rep. Missing means false. */
