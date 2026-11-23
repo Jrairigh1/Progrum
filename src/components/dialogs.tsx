@@ -155,7 +155,6 @@ export function ClientDialog({
   const [estate, setEstate] = useState(false);
   const [poa, setPoa] = useState(false);
   const [bestContactNumber, setBestContactNumber] = useState("");
-  const [timeAtAddress, setTimeAtAddress] = useState("");
   const [error, setError] = useState<string | null>(null);
   const nameId = useId();
   useEffect(() => {
@@ -170,14 +169,13 @@ export function ClientDialog({
       setEstate(false);
       setPoa(false);
       setBestContactNumber("");
-      setTimeAtAddress("");
       setError(null);
     }
   }, [open]);
 
   function submit(event: FormEvent) {
     event.preventDefault();
-    const result = onCreate({ name, state, insurer: laAbuse ? "" : insurer, dealType, lifeContingent, ipa, laAbuse, estate, poa, bestContactNumber, timeAtAddress });
+    const result = onCreate({ name, state, insurer: laAbuse ? "" : insurer, dealType, lifeContingent, ipa, laAbuse, estate, poa, bestContactNumber, timeAtAddress: "" });
     if (result) setError(result);
     else onClose();
   }
@@ -287,14 +285,6 @@ export function ClientDialog({
           maxLength={40}
           value={bestContactNumber}
           onChange={(event) => setBestContactNumber(formatContactNumber(event.target.value))}
-        />
-        <label htmlFor={`${nameId}-address-time`}>Time at address</label>
-        <input
-          id={`${nameId}-address-time`}
-          maxLength={80}
-          placeholder="3 years"
-          value={timeAtAddress}
-          onChange={(event) => setTimeAtAddress(event.target.value)}
         />
         <label htmlFor={`${nameId}-state`}>State</label>
         <select id={`${nameId}-state`} value={state} onChange={(event) => setState(event.target.value)}>
