@@ -3,6 +3,7 @@ import { compareNames, sumProgress } from "../lib/clients";
 import { fundedHref, repHref } from "../lib/routing";
 import { useStore } from "../store";
 import { AdvanceDialog, QuickLinks } from "./AdvanceDoc";
+import { ContinuedContactDialog, LifeAffidavitDialog } from "./LifeDocs";
 import { ConfirmDialog, NameDialog } from "./dialogs";
 import { Meter, Ring } from "./ui";
 
@@ -10,6 +11,8 @@ export function RepsPage() {
   const store = useStore();
   const [adding, setAdding] = useState(false);
   const [advance, setAdvance] = useState(false);
+  const [lifeDoc, setLifeDoc] = useState(false);
+  const [notifierDoc, setNotifierDoc] = useState(false);
   const [renameId, setRenameId] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const reps = [...store.reps].sort((a, b) => compareNames(a.name, b.name));
@@ -72,8 +75,14 @@ export function RepsPage() {
         <a href={fundedHref()}>Funded ({store.clients.filter((client) => client.funded).length})</a>
       </p>
       </div>
-      <QuickLinks onAdvance={() => setAdvance(true)} />
+      <QuickLinks
+        onAdvance={() => setAdvance(true)}
+        onLifeAffidavit={() => setLifeDoc(true)}
+        onNotifier={() => setNotifierDoc(true)}
+      />
       <AdvanceDialog open={advance} onClose={() => setAdvance(false)} />
+      <LifeAffidavitDialog open={lifeDoc} onClose={() => setLifeDoc(false)} />
+      <ContinuedContactDialog open={notifierDoc} onClose={() => setNotifierDoc(false)} />
       <NameDialog
         open={adding}
         title="Add rep"
