@@ -1,5 +1,6 @@
 import { useEffect, useId, useState } from "react";
 import { QUICK_LINKS, WIRE_FEE } from "../config/catalog";
+import { laAbuseCalculatorHref } from "../lib/routing";
 import {
   downloadBytes,
   formatPlainAmount,
@@ -132,6 +133,9 @@ export function QuickLinks({
         >
           2 Person Notifier (Designation of Continued Contact)
         </button>
+        <a className="btn quick-advance" href={laAbuseCalculatorHref()} onClick={() => setDrawerOpen(false)}>
+          LA Abuse Payment Calculator
+        </a>
         <ul>
           {QUICK_LINKS.map((link) => (
             <li key={link.label}>
