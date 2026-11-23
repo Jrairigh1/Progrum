@@ -34,7 +34,15 @@ function writeQuickLinksCollapsed(collapsed: boolean) {
   }
 }
 
-export function QuickLinks({ onAdvance }: { onAdvance: () => void }) {
+export function QuickLinks({
+  onAdvance,
+  onLifeAffidavit,
+  onNotifier,
+}: {
+  onAdvance: () => void;
+  onLifeAffidavit: () => void;
+  onNotifier: () => void;
+}) {
   const [collapsed, setCollapsed] = useState(readQuickLinksCollapsed);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [narrow, setNarrow] = useState(() => window.matchMedia(NARROW_QUERY).matches);
@@ -103,6 +111,26 @@ export function QuickLinks({ onAdvance }: { onAdvance: () => void }) {
           }}
         >
           Advance document
+        </button>
+        <button
+          type="button"
+          className="btn quick-advance"
+          onClick={() => {
+            setDrawerOpen(false);
+            onLifeAffidavit();
+          }}
+        >
+          Life Affidavit
+        </button>
+        <button
+          type="button"
+          className="btn quick-advance"
+          onClick={() => {
+            setDrawerOpen(false);
+            onNotifier();
+          }}
+        >
+          2 Person Notifier (Designation of Continued Contact)
         </button>
         <ul>
           {QUICK_LINKS.map((link) => (
