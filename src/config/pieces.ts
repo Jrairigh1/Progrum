@@ -230,7 +230,7 @@ export const LIFE_PIECE_IDS = ["life-affidavit", "two-person-notifier", "fasano"
 
 export const IPA_PIECE_IDS = ["ipa-invoice", "ipa-w9"] as const;
 
-const SPIA_SKIPPED = new Set(["hold-time", "docusign-hold"]);
+const SPIA_SKIPPED = new Set(["residence-1", "residence-2", "hold-time", "docusign-hold"]);
 const LA_ABUSE_SKIPPED = new Set(["benefits", "settlement"]);
 
 function skipCorePiece(ctx: PieceContext, pieceId: string): boolean {
@@ -296,7 +296,7 @@ export function corePieceCount(): number {
   return CORE_PIECES.length;
 }
 
-/** Core puzzle cells in their fixed places. SPIA leaves Hold Time empty. LA abuse leaves Benefits Letter and Settlement Agreement empty. */
+/** Core puzzle cells in their fixed places. SPIA leaves both residence proofs and Hold Time empty. LA abuse leaves Benefits Letter and Settlement Agreement empty. */
 export function puzzleSlots(pieces: PieceDef[]): (PieceDef | null)[] {
   const core = new Map(pieces.filter((piece) => piece.group === "core").map((piece) => [piece.id, piece]));
   return CORE_PIECES.map((piece) => core.get(piece.id) ?? null);

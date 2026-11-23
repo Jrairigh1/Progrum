@@ -246,7 +246,7 @@ export function ClientDialog({
           />
           SPIA
         </label>
-        <p className="hint">Single premium immediate annuity. Hold Time, its DocuSign summary, and IPA are not required.</p>
+        <p className="hint">Single premium immediate annuity. Proof of Residence, Hold Time, its DocuSign summary, and IPA are not required.</p>
         <label className="checkline">
           <input type="checkbox" checked={lifeContingent} onChange={(event) => setLifeContingent(event.target.checked)} />
           Life contingent
