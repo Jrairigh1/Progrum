@@ -290,11 +290,33 @@ main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 48
 
 .meta-form {
   display: grid;
-  grid-template-columns: 1fr 1.4fr minmax(220px, 0.7fr);
+  grid-template-columns: 1fr 1.4fr;
   gap: 14px;
   padding: 16px;
   margin-bottom: 18px;
 }
+.option-groups {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(200px, 0.8fr) minmax(280px, 1.2fr);
+  gap: 12px;
+}
+.modal-card .option-groups { grid-template-columns: 1fr; }
+.option-group {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  margin: 0;
+  padding: 8px 12px 10px;
+}
+.option-group legend {
+  width: 100%;
+  padding: 0 4px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--navy);
+}
+.meta-form .option-group { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center; }
 .quiet { margin: 6px 0; }
 .meta-form label, .modal-card label { display: flex; flex-direction: column; gap: 6px; font-size: 0.92rem; }
 .meta-form fieldset, .modal-card fieldset {
@@ -693,7 +715,7 @@ main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 48
 :focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 
 @media (max-width: 980px) {
-  .board-layout, .meta-form, .status { grid-template-columns: 1fr; }
+  .board-layout, .meta-form, .status, .option-groups { grid-template-columns: 1fr; }
   .missing { grid-template-columns: 1fr; }
   .page-head, .row-main { flex-direction: column; align-items: flex-start; }
   .row-progress { text-align: left; width: 100%; }

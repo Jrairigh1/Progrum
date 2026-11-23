@@ -1036,6 +1036,40 @@ export const METLIFE_SPLIT_STATES = ["AK","AZ","IN","MA","NH","SC","WV","MO","DE
 
 export const IPA_FEE = 1500;
 
+/** Checkbox groups on the new-client form and the client board. Order is the order shown. */
+export interface ClientFlag {
+  id: "spia" | "la-abuse" | "life-contingent" | "ipa" | "estate" | "poa";
+  label: string;
+  title?: string;
+}
+
+export interface ClientFlagGroup {
+  id: string;
+  label: string;
+  flags: ClientFlag[];
+}
+
+export const CLIENT_FLAG_GROUPS: ClientFlagGroup[] = [
+  {
+    id: "deal-type",
+    label: "Deal Type",
+    flags: [
+      { id: "spia", label: "SPIA" },
+      { id: "la-abuse", label: "LA abuse" },
+    ],
+  },
+  {
+    id: "special-circumstances",
+    label: "Special Circumstances",
+    flags: [
+      { id: "life-contingent", label: "Life contingent" },
+      { id: "ipa", label: "IPA" },
+      { id: "estate", label: "Estate" },
+      { id: "poa", label: "POA (Power of Attorney)", title: "POA (Power of Attorney)" },
+    ],
+  },
+];
+
 export function stateName(code: string): string {
   return STATE_NAMES[code] ?? code;
 }

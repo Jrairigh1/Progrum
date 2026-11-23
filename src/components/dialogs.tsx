@@ -1,6 +1,7 @@
-import { useEffect, useId, useRef, useState } from "react";
+import { Fragment, useEffect, useId, useRef, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
-import { insurerOptions, ipaRequired, stateName, stateOptions } from "../config/catalog";
+import { CLIENT_FLAG_GROUPS, insurerOptions, ipaRequired, stateName, stateOptions } from "../config/catalog";
+import type { ClientFlag } from "../config/catalog";
 import { formatAdded, parseHttpsUrl } from "../lib/links";
 import { formatContactNumber } from "../lib/phone";
 import { safeHref } from "./Puzzle";
@@ -181,6 +182,96 @@ export function ClientDialog({
     else onClose();
   }
 
+  function createFlag(flag: ClientFlag): ReactNode {
+    switch (flag.id) {
+      case "spia":
+        return (
+          <Fragment key={flag.id}>
+            <label className="checkline" title={flag.title}>
+              <input
+                type="checkbox"
+                checked={dealType === "spia"}
+                onChange={(event) => setDealType(event.target.checked ? "spia" : "structured")}
+              />
+              {flag.label}
+            </label>
+            <p className="hint">Single premium immediate annuity. Proof of Residence, Hold Time, its DocuSign summary, and IPA are not required.</p>
+          </Fragment>
+        );
+      case "la-abuse":
+        return (
+          <Fragment key={flag.id}>
+            <label className="checkline" title={flag.title}>
+              <input
+                type="checkbox"
+                checked={laAbuse}
+                onChange={(event) => {
+                  const next = event.target.checked;
+                  setLaAbuse(next);
+                  if (next) setInsurer("");
+                }}
+              />
+              {flag.label}
+            </label>
+            <p className="hint">Adds Point Allocation and First Payment Breakdown. Benefits Letter and Settlement Agreement are not required.</p>
+          </Fragment>
+        );
+      case "life-contingent":
+        return (
+          <Fragment key={flag.id}>
+            <label className="checkline" title={flag.title}>
+              <input type="checkbox" checked={lifeContingent} onChange={(event) => setLifeContingent(event.target.checked)} />
+              {flag.label}
+            </label>
+            <p className="hint">Adds Life Affidavit, 2 Person Notifier, Fasano, DocuCert for Fasano, and Life Expectancy Doc.</p>
+          </Fragment>
+        );
+      case "estate":
+        return (
+          <Fragment key={flag.id}>
+            <label className="checkline" title={flag.title}>
+              <input type="checkbox" checked={estate} onChange={(event) => setEstate(event.target.checked)} />
+              {flag.label}
+            </label>
+            <p className="hint">
+              Adds Death Certificate, Letter of Administration, Application of Deceased, Will (if applicable), and List of Dependents for Deceased.
+            </p>
+          </Fragment>
+        );
+      case "poa":
+        return (
+          <Fragment key={flag.id}>
+            <label className="checkline" title={flag.title}>
+              <input type="checkbox" checked={poa} onChange={(event) => setPoa(event.target.checked)} />
+              {flag.label}
+            </label>
+            <p className="hint">Adds Proof of POA.</p>
+          </Fragment>
+        );
+      case "ipa":
+        return (
+          <Fragment key={flag.id}>
+            <label className="checkline" title={flag.title}>
+              <input
+                type="checkbox"
+                checked={dealType !== "spia" && (ipaRequired(state) || ipa)}
+                disabled={dealType === "spia" || ipaRequired(state)}
+                onChange={(event) => setIpa(event.target.checked)}
+              />
+              {flag.label}
+            </label>
+            <p className="hint">
+              {dealType === "spia"
+                ? "IPA not needed for SPIA"
+                : ipaRequired(state)
+                  ? `IPA required in ${stateName(state)}. Adds IPA Invoice and IPA W9.`
+                  : "Adds IPA Invoice and IPA W9. Optional unless the state requires it."}
+            </p>
+          </Fragment>
+        );
+    }
+  }
+
   return (
     <Modal open={open} title="Add client" onClose={onClose}>
       <form onSubmit={submit}>
@@ -229,61 +320,14 @@ export function ClientDialog({
           ))}
         </select>
         {laAbuse && <p className="hint">No insurance company for LA abuse cases</p>}
-        <label className="checkline">
-          <input
-            type="checkbox"
-            checked={laAbuse}
-            onChange={(event) => {
-              const next = event.target.checked;
-              setLaAbuse(next);
-              if (next) setInsurer("");
-            }}
-          />
-          LA abuse
-        </label>
-        <p className="hint">Adds Point Allocation and First Payment Breakdown. Benefits Letter and Settlement Agreement are not required.</p>
-        <label className="checkline">
-          <input
-            type="checkbox"
-            checked={dealType === "spia"}
-            onChange={(event) => setDealType(event.target.checked ? "spia" : "structured")}
-          />
-          SPIA
-        </label>
-        <p className="hint">Single premium immediate annuity. Proof of Residence, Hold Time, its DocuSign summary, and IPA are not required.</p>
-        <label className="checkline">
-          <input type="checkbox" checked={lifeContingent} onChange={(event) => setLifeContingent(event.target.checked)} />
-          Life contingent
-        </label>
-        <p className="hint">Adds Life Affidavit, 2 Person Notifier, Fasano, DocuCert for Fasano, and Life Expectancy Doc.</p>
-        <label className="checkline">
-          <input type="checkbox" checked={estate} onChange={(event) => setEstate(event.target.checked)} />
-          Estate
-        </label>
-        <p className="hint">
-          Adds Death Certificate, Letter of Administration, Application of Deceased, Will (if applicable), and List of Dependents for Deceased.
-        </p>
-        <label className="checkline" title="POA (Power of Attorney)">
-          <input type="checkbox" checked={poa} onChange={(event) => setPoa(event.target.checked)} />
-          POA (Power of Attorney)
-        </label>
-        <p className="hint">Adds Proof of POA.</p>
-        <label className="checkline">
-          <input
-            type="checkbox"
-            checked={dealType !== "spia" && (ipaRequired(state) || ipa)}
-            disabled={dealType === "spia" || ipaRequired(state)}
-            onChange={(event) => setIpa(event.target.checked)}
-          />
-          IPA
-        </label>
-        <p className="hint">
-          {dealType === "spia"
-            ? "IPA not needed for SPIA"
-            : ipaRequired(state)
-              ? `IPA required in ${stateName(state)}. Adds IPA Invoice and IPA W9.`
-              : "Adds IPA Invoice and IPA W9. Optional unless the state requires it."}
-        </p>
+        <div className="option-groups">
+          {CLIENT_FLAG_GROUPS.map((group) => (
+            <fieldset key={group.id} className="option-group">
+              <legend>{group.label}</legend>
+              {group.flags.map((flag) => createFlag(flag))}
+            </fieldset>
+          ))}
+        </div>
         {error && <p className="form-error">{error}</p>}
         <div className="modal-actions">
           <button type="button" className="btn ghost" onClick={onClose}>

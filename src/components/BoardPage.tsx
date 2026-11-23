@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
-import { ESTATE_PIECE_IDS, insurerOptions, ipaRequired, LA_ABUSE_PIECE_IDS, POA_PIECE_IDS, stateName, stateOptions } from "../config/catalog";
+import { Fragment, useEffect, useState } from "react";
+import type { ReactNode } from "react";
+import { CLIENT_FLAG_GROUPS, ESTATE_PIECE_IDS, insurerOptions, ipaRequired, LA_ABUSE_PIECE_IDS, POA_PIECE_IDS, stateName, stateOptions } from "../config/catalog";
+import type { ClientFlag } from "../config/catalog";
 import { IPA_PIECE_IDS, LIFE_PIECE_IDS, puzzleSlots } from "../config/pieces";
 import { progressFor } from "../lib/clients";
 import { linkStamp } from "../lib/links";
@@ -83,6 +85,84 @@ export function BoardPage({ clientId }: { clientId: string }) {
     else store.notify(`Link saved for ${piece.label}.`);
   }
 
+  function boardFlag(flag: ClientFlag): ReactNode {
+    switch (flag.id) {
+      case "spia":
+        return (
+          <label key={flag.id} className="checkline" title={flag.title}>
+            <input
+              type="checkbox"
+              checked={spia}
+              onChange={(event) => store.updateClient(client!.id, { dealType: event.target.checked ? "spia" : "structured" })}
+            />
+            {flag.label}
+          </label>
+        );
+      case "la-abuse":
+        return (
+          <label key={flag.id} className="checkline" title={flag.title}>
+            <input
+              type="checkbox"
+              checked={client!.laAbuse}
+              onChange={(event) => store.updateClient(client!.id, { laAbuse: event.target.checked })}
+            />
+            {flag.label}
+          </label>
+        );
+      case "life-contingent":
+        return (
+          <label key={flag.id} className="checkline" title={flag.title}>
+            <input
+              type="checkbox"
+              checked={client!.lifeContingent}
+              onChange={(event) => store.updateClient(client!.id, { lifeContingent: event.target.checked })}
+            />
+            {flag.label}
+          </label>
+        );
+      case "estate":
+        return (
+          <label key={flag.id} className="checkline" title={flag.title}>
+            <input
+              type="checkbox"
+              checked={client!.estate}
+              onChange={(event) => store.updateClient(client!.id, { estate: event.target.checked })}
+            />
+            {flag.label}
+          </label>
+        );
+      case "poa":
+        return (
+          <label key={flag.id} className="checkline" title={flag.title}>
+            <input
+              type="checkbox"
+              checked={client!.poa}
+              onChange={(event) => store.updateClient(client!.id, { poa: event.target.checked })}
+            />
+            {flag.label}
+          </label>
+        );
+      case "ipa":
+        return (
+          <Fragment key={flag.id}>
+            <label className="checkline" title={flag.title}>
+              <input
+                type="checkbox"
+                checked={!spia && (ipaForced || client!.ipa)}
+                disabled={spia || ipaForced}
+                onChange={(event) => {
+                  if (!spia && !ipaForced) store.updateClient(client!.id, { ipa: event.target.checked });
+                }}
+              />
+              {flag.label}
+            </label>
+            {spia && <p className="hint ipa-note">IPA not needed for SPIA</p>}
+            {ipaForced && <p className="hint ipa-note">IPA required in {stateName(client!.state)}</p>}
+          </Fragment>
+        );
+    }
+  }
+
   function markNotApplicable(piece: PieceDef, value: boolean) {
     const next = new Set(client!.notApplicable);
     if (value) next.add(piece.id);
@@ -161,62 +241,14 @@ export function BoardPage({ clientId }: { clientId: string }) {
           </select>
           {client.laAbuse && <span className="hint">No insurance company for LA abuse cases</span>}
         </label>
-        <fieldset>
-          <legend>Deal type</legend>
-          <label className="checkline">
-            <input
-              type="checkbox"
-              checked={spia}
-              onChange={(event) => store.updateClient(client.id, { dealType: event.target.checked ? "spia" : "structured" })}
-            />
-            SPIA
-          </label>
-          <label className="checkline">
-            <input
-              type="checkbox"
-              checked={client.laAbuse}
-              onChange={(event) => store.updateClient(client.id, { laAbuse: event.target.checked })}
-            />
-            LA abuse
-          </label>
-          <label className="checkline">
-            <input
-              type="checkbox"
-              checked={client.lifeContingent}
-              onChange={(event) => store.updateClient(client.id, { lifeContingent: event.target.checked })}
-            />
-            Life contingent
-          </label>
-          <label className="checkline">
-            <input
-              type="checkbox"
-              checked={client.estate}
-              onChange={(event) => store.updateClient(client.id, { estate: event.target.checked })}
-            />
-            Estate
-          </label>
-          <label className="checkline" title="POA (Power of Attorney)">
-            <input
-              type="checkbox"
-              checked={client.poa}
-              onChange={(event) => store.updateClient(client.id, { poa: event.target.checked })}
-            />
-            POA (Power of Attorney)
-          </label>
-          <label className="checkline">
-            <input
-              type="checkbox"
-              checked={!spia && (ipaForced || client.ipa)}
-              disabled={spia || ipaForced}
-              onChange={(event) => {
-                if (!spia && !ipaForced) store.updateClient(client.id, { ipa: event.target.checked });
-              }}
-            />
-            IPA
-          </label>
-          {spia && <p className="hint ipa-note">IPA not needed for SPIA</p>}
-          {ipaForced && <p className="hint ipa-note">IPA required in {stateName(client.state)}</p>}
-        </fieldset>
+        <div className="option-groups">
+          {CLIENT_FLAG_GROUPS.map((group) => (
+            <fieldset key={group.id} className="option-group">
+              <legend>{group.label}</legend>
+              {group.flags.map((flag) => boardFlag(flag))}
+            </fieldset>
+          ))}
+        </div>
       </form>
 
       <CopyLinks client={client} pieces={progress.pieces} />
